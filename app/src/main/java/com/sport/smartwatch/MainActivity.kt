@@ -6,10 +6,12 @@ import android.os.Bundle
 import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
-    var btn= findViewById<Button>(R.id.btnSCAN)
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val btn = findViewById<Button>(R.id.btnSCAN)
         btn.setOnClickListener{
              intent = Intent(this,HeartDisplay::class.java)
              startActivity(intent)

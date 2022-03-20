@@ -3,9 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/layout/activity_heart_display.xml" value="0.19519927536231885" />
-        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.10778985507246377" />
+        <entry key="app/src/main/res/drawable/svg_heart.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_heart_display.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/simple_xy_plot_example.xml" value="0.25" />
       </map>
     </option>
   </component>

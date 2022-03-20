@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Smart Watch</string>
     <string name="detailed_stats">Detailed Stats</string>
+    <string name="welcome">Welcome</string>
+    <string name="scan">Scan</string>
+    <string name="click_to_scan">click here to scan for nearby devices</string>
+    <string name="bpm">BPM</string>
 </resources>

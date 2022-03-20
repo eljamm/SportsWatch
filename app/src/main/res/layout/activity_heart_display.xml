@@ -6,61 +6,65 @@
     android:layout_height="match_parent"
     tools:context=".HeartDisplay">
 
-    <ImageView
-        android:id="@+id/imgCircle"
-        android:layout_width="280dp"
-        android:layout_height="280dp"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toBottomOf="@+id/imgHeart"
-        app:layout_constraintEnd_toEndOf="@+id/imgHeart"
-        app:layout_constraintStart_toStartOf="@+id/imgHeart"
-        app:layout_constraintTop_toTopOf="@+id/imgHeart"
-        app:srcCompat="@drawable/circle" />
-
-    <ImageView
-        android:id="@+id/imgHeart"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginBottom="350dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/svg_heart" />
-
-    <TextView
-        android:id="@+id/txtBPM"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:fontFamily="sans-serif-light"
-        android:textColor="#FFEBEE"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/imgHeart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/imgHeart"
-        tools:text="BPM" />
-
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="350dp"
+        android:layout_marginTop="20dp"
         android:text="@string/detailed_stats"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgCircle" />
+        app:layout_constraintTop_toBottomOf="@+id/chart" />
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/button"
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/chart"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout2" />
+
+    <FrameLayout
+        android:id="@+id/frameLayout2"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgCircle"
-        app:srcCompat="@mipmap/ic_launcher" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imgCircle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="0dp"
+            app:srcCompat="@drawable/circle" />
+
+        <ImageView
+            android:id="@+id/imgHeart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|top"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="20dp"
+            app:srcCompat="@drawable/svg_heart" />
+
+        <TextView
+            android:id="@+id/txtBPM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/bpm"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
