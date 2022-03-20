@@ -9,13 +9,13 @@
     tools:context=".MainActivity" >
 
     <TextView
-        android:id="@+id/txt"
+        android:id="@+id/txtWELCOME"
         android:layout_width="303dp"
         android:layout_height="107dp"
         android:layout_marginBottom="176dp"
         android:text="Welcome"
         android:textSize="60sp"
-        app:layout_constraintBottom_toTopOf="@+id/btn"
+        app:layout_constraintBottom_toTopOf="@+id/btnSCAN"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.685"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +23,7 @@
         app:layout_constraintVertical_bias="0.629" />
 
     <Button
-        android:id="@+id/btn"
+        android:id="@+id/btnSCAN"
         android:layout_width="225dp"
         android:layout_height="64dp"
         android:layout_marginBottom="116dp"
@@ -34,7 +34,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/txtClickScan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="click here to scan for nearby devices"
