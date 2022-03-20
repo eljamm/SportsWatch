@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Smart Watch</string>
+    <string name="detailed_stats">Detailed Stats</string>
 </resources>
