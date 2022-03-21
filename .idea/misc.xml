@@ -5,6 +5,7 @@
       <map>
         <entry key="app/src/main/res/drawable/svg_heart.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_heart_display.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_line_chart_colored.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/simple_xy_plot_example.xml" value="0.25" />
       </map>
