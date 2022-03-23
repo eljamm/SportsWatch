@@ -12,17 +12,23 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.os.Build
-import android.os.Bundle
+import android.os.*
+import android.provider.SyncStateContract
 import android.util.Log
 import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.FragmentActivity
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 private const val TAG = "SportsWatch"   // Used for debugging
@@ -33,6 +39,8 @@ private const val MY_UUID = "00001101-0000-1000-8000-00805F9B34FB"
 @RequiresApi(Build.VERSION_CODES.O)
 class MainActivity : AppCompatActivity() {
     var bluetoothSocket: BluetoothSocket? = null
+    var handler = BluetoothHandler()
+    private val messages: ArrayList<String> = ArrayList()
 
     // Define and Initialize the bluetooth adapter
     private val bluetoothAdapter: BluetoothAdapter? = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -69,11 +77,18 @@ class MainActivity : AppCompatActivity() {
         btnSend.setOnClickListener {
             if(bluetoothSocket != null) {
                 try {
-                    bluetoothSocket?.outputStream?.write(("Z" + "\r\n").toByteArray())
+                    val connectedThread = ConnectedThread(bluetoothSocket!!)
+                    connectedThread.start()
+                    connectedThread.write("Z".toByteArray())
+//                    bluetoothSocket?.outputStream?.write(("Z" + "\r\n").toByteArray())
                     Log.d(TAG, "Wrote to output stream")
                 } catch (e: IOException) {
                     Log.d(TAG, "Can't write to output stream")
                 }
+            }
+            if (messages.isNotEmpty()) {
+                val txtScan = findViewById<TextView>(R.id.txtClickScan)
+                txtScan.text = messages.last()
             }
         }
     }
@@ -227,12 +242,12 @@ class MainActivity : AppCompatActivity() {
     /**
      * Connect with paired device
      */
-    @SuppressLint("MissingPermission")
     inner class ConnectThread(device: BluetoothDevice) : Thread() {
         var mmSocket: BluetoothSocket? = null
 
         init {
             if (mmSocket == null)  {
+                checkPermission()
                 mmSocket = device.createRfcommSocketToServiceRecord(UUID.fromString(MY_UUID))
                 Log.d(TAG, "Connected to service")
             } else {
@@ -242,6 +257,7 @@ class MainActivity : AppCompatActivity() {
 
         public override fun run() {
             // Cancel discovery because it otherwise slows down the connection.
+            checkPermission()
             bluetoothAdapter?.cancelDiscovery()
 
             try {
@@ -266,6 +282,78 @@ class MainActivity : AppCompatActivity() {
             } catch (e: IOException) {
                 Log.e(TAG, "Could not close the client socket", e)
             }
+        }
+    }
+
+    private inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
+        private val mmInStream: InputStream = mmSocket.inputStream
+        private val mmOutStream: OutputStream = mmSocket.outputStream
+        private val mmBuffer: ByteArray = ByteArray(1024) // mmBuffer store for the stream
+
+        override fun run() {
+            var numBytes: Int // bytes returned from read()
+
+            // Keep listening to the InputStream until an exception occurs.
+            while (true) {
+                // Read from the InputStream.
+                numBytes = try {
+                    mmInStream.read(mmBuffer)
+                } catch (e: IOException) {
+                    Log.d(TAG, "Input stream was disconnected", e)
+                    break
+                }
+
+                // Send the obtained bytes to the UI activity.
+                val readMsg = handler.obtainMessage(
+                    MESSAGE_READ, numBytes, -1,
+                    mmBuffer)
+                readMsg.sendToTarget()
+            }
+        }
+
+        // Call this from the main activity to send data to the remote device.
+        fun write(bytes: ByteArray) {
+            try {
+                mmOutStream.write(bytes)
+            } catch (e: IOException) {
+                Log.e(TAG, "Error occurred when sending data", e)
+
+                // Send a failure message back to the activity.
+                val writeErrorMsg = handler.obtainMessage(MESSAGE_TOAST)
+                val bundle = Bundle().apply {
+                    putString("toast", "Couldn't send data to the other device")
+                }
+                writeErrorMsg.data = bundle
+                handler.sendMessage(writeErrorMsg)
+                return
+            }
+
+            // Share the sent message with the UI activity.
+            val writtenMsg = handler.obtainMessage(
+                MESSAGE_WRITE, -1, -1, mmBuffer)
+            writtenMsg.sendToTarget()
+        }
+
+        // Call this method from the main activity to shut down the connection.
+        fun cancel() {
+            try {
+                mmSocket.close()
+            } catch (e: IOException) {
+                Log.e(TAG, "Could not close the connect socket", e)
+            }
+        }
+    }
+
+    inner class BluetoothHandler(): Handler(Looper.myLooper()!!) {
+        override fun handleMessage(msg: Message) {
+            super.handleMessage(msg)
+            // TODO: WORK IN PROGRESS
+//            if (messages.size < 20) {
+//                messages.add(msg.obj.toString())
+//            } else {
+//                messages.removeAt(0)
+//                messages.add(msg.obj.toString())
+//            }
         }
     }
 }
