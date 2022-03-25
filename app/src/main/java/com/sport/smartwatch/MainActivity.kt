@@ -24,9 +24,12 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
+import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.lang.Exception
+import java.lang.StringBuilder
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -61,6 +64,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val txtScan:TextView = findViewById(R.id.txtClickScan)
+
         // Declare heart display activity intent
         val heartDisplay = Intent(this, HeartDisplay::class.java)
 
@@ -79,16 +84,12 @@ class MainActivity : AppCompatActivity() {
                 try {
                     val connectedThread = ConnectedThread(bluetoothSocket!!)
                     connectedThread.start()
-                    connectedThread.write("Z".toByteArray())
+                    connectedThread.write("*".toByteArray())
 //                    bluetoothSocket?.outputStream?.write(("Z" + "\r\n").toByteArray())
                     Log.d(TAG, "Wrote to output stream")
                 } catch (e: IOException) {
                     Log.d(TAG, "Can't write to output stream")
                 }
-            }
-            if (messages.isNotEmpty()) {
-                val txtScan = findViewById<TextView>(R.id.txtClickScan)
-                txtScan.text = messages.last()
             }
         }
     }
@@ -292,22 +293,27 @@ class MainActivity : AppCompatActivity() {
 
         override fun run() {
             var numBytes: Int // bytes returned from read()
+            var readMessage: StringBuilder = StringBuilder()
+            val mmBuffer: ByteArray = ByteArray(512) // mmBuffer store for the stream
 
             // Keep listening to the InputStream until an exception occurs.
             while (true) {
                 // Read from the InputStream.
-                numBytes = try {
-                    mmInStream.read(mmBuffer)
+                try {
+                    numBytes = mmInStream.read(mmBuffer)
+                    val read = String(mmBuffer, 0, numBytes)
+                    readMessage.append(read)
+
+                    Log.d(TAG, "TIME: ${readMessage.toString()}")
+
+                    if (read.contains("\n", ignoreCase = true)) {
+                        handler.obtainMessage(MESSAGE_READ, numBytes, -1, readMessage.toString()).sendToTarget()
+                        readMessage.setLength(0)
+                    }
                 } catch (e: IOException) {
                     Log.d(TAG, "Input stream was disconnected", e)
                     break
                 }
-
-                // Send the obtained bytes to the UI activity.
-                val readMsg = handler.obtainMessage(
-                    MESSAGE_READ, numBytes, -1,
-                    mmBuffer)
-                readMsg.sendToTarget()
             }
         }
 
@@ -347,13 +353,27 @@ class MainActivity : AppCompatActivity() {
     inner class BluetoothHandler(): Handler(Looper.myLooper()!!) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
-            // TODO: WORK IN PROGRESS
-//            if (messages.size < 20) {
-//                messages.add(msg.obj.toString())
-//            } else {
-//                messages.removeAt(0)
-//                messages.add(msg.obj.toString())
-//            }
+            try {
+                Log.d(TAG, "Read from input stream")
+                when(msg.what) {
+                    MESSAGE_READ -> {
+                        var message: String = msg.obj as String
+                        message = message.replace("\r", "").replace("\n", "")
+                        messages.add(message)
+                        Log.d(TAG, "Read $message")
+                    }
+
+                    MESSAGE_TOAST -> {
+
+                    }
+
+                    MESSAGE_WRITE -> {
+
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG,"Could not read value")
+            }
         }
     }
 }
