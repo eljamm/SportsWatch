@@ -131,7 +131,7 @@ class HeartDisplay : AppCompatActivity() {
             val connectThread = ConnectThread(device)
             connectThread.start()
             //change image to bluetooth on
-            imgbtn.setImageResource(R.drawable.bon)
+            imgbtn.setImageResource(R.drawable.ic_bluetooth_connected)
         }
     }
     inner class ConnectThread(device: BluetoothDevice) : Thread() {
