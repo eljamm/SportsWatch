@@ -6,25 +6,54 @@
     android:layout_height="match_parent"
     tools:context=".HeartDisplay">
 
+    <TextView
+        android:id="@+id/txtT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Heart Monitor"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.013"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.007" />
+
     <Button
         android:id="@+id/btnStats"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="68dp"
         android:text="@string/detailed_stats"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.539"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chart" />
+
+    <ImageButton
+        android:id="@+id/btn"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/app_name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.955"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.008"
+        app:srcCompat="@drawable/boff" />
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart"
         android:layout_width="300dp"
         android:layout_height="200dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="124dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayout2" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout2">
+
+    </com.github.mikephil.charting.charts.LineChart>
 
     <FrameLayout
         android:id="@+id/frameLayout2"
@@ -41,7 +70,9 @@
             android:layout_height="match_parent"
             android:layout_gravity="bottom"
             android:layout_marginBottom="0dp"
-            app:srcCompat="@drawable/circle" />
+            android:contentDescription="TODO"
+            app:srcCompat="@drawable/circle"
+            tools:ignore="ImageContrastCheck" />
 
         <ImageView
             android:id="@+id/imgHeart"
@@ -50,7 +81,9 @@
             android:layout_gravity="center|top"
             android:layout_marginTop="50dp"
             android:layout_marginBottom="20dp"
-            app:srcCompat="@drawable/svg_heart" />
+            android:contentDescription="TODO"
+            app:srcCompat="@drawable/svg_heart"
+            tools:ignore="ImageContrastCheck,ImageContrastCheck" />
 
         <TextView
             android:id="@+id/txtBPM"
