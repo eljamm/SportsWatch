@@ -45,11 +45,7 @@ private const val MY_UUID = "00001101-0000-1000-8000-00805F9B34FB"
 
 @RequiresApi(Build.VERSION_CODES.O)
 class HeartDisplay : AppCompatActivity() {
-    var BPM=findViewById<TextView>(R.id.txtBPM)
 
-
-    val statbtn=findViewById<Button>(R.id.btnStats)
-    val imgbtn = findViewById<ImageButton>(R.id.btn)
     var bluetoothSocket: BluetoothSocket? = null
     var handler = BluetoothHandler()
     private val messages: ArrayList<String> = ArrayList()
@@ -71,6 +67,11 @@ class HeartDisplay : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart_display)
+        var BPM=findViewById<TextView>(R.id.txtBPM)
+
+
+        val statbtn=findViewById<Button>(R.id.btnStats)
+        val imgbtn = findViewById<ImageButton>(R.id.btn)
         BPM.visibility=View.GONE
         imgbtn.setOnClickListener{
             // Enable bluetooth if it's disabled
@@ -78,6 +79,7 @@ class HeartDisplay : AppCompatActivity() {
 
             // Find nearby devices
             findDevices()
+            imgbtn.setImageResource(R.drawable.ic_bluetooth_connected)
             BPM.visibility=View.VISIBLE
 
         }
@@ -114,6 +116,7 @@ class HeartDisplay : AppCompatActivity() {
                 requestBluetooth.launch(enableBtIntent)
                 //change image to bluetooth static
 
+
             }
         }
     }
@@ -131,7 +134,7 @@ class HeartDisplay : AppCompatActivity() {
             val connectThread = ConnectThread(device)
             connectThread.start()
             //change image to bluetooth on
-            imgbtn.setImageResource(R.drawable.ic_bluetooth_connected)
+
         }
     }
     inner class ConnectThread(device: BluetoothDevice) : Thread() {

@@ -25,7 +25,7 @@
 
         <activity
             android:name=".HeartDisplay"
-            android:label="YourAppName"
+            android:label="SportsWatch App"
             android:theme="@style/Theme.SmartWatch"
             android:exported="true">
             <intent-filter>
