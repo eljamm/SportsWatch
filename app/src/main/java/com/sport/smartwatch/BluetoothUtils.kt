@@ -117,8 +117,8 @@ class BluetoothUtils(private val context: Context) {
                 Log.d(TAG, "Connected to device")
             } catch (connectException: IOException) {
                 try {
-                    mmSocket?.close()
-                    Log.d(TAG, "Closed socket")
+                    //mmSocket?.close()
+                    //Log.d(TAG, "Closed socket")
                 } catch (closeException: IOException) {
                     Log.d(TAG, "Can't close socket")
                 }
@@ -178,7 +178,7 @@ class BluetoothUtils(private val context: Context) {
     inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
         private val mmInStream: InputStream = mmSocket.inputStream
         private val mmOutStream: OutputStream = mmSocket.outputStream
-        private val mmBuffer: ByteArray = ByteArray(1024) // mmBuffer store for the stream
+        private val mmBuffer: ByteArray = ByteArray(2048) // mmBuffer store for the stream
 
         override fun run() {
             var numBytes: Int // bytes returned from read()
@@ -210,13 +210,12 @@ class BluetoothUtils(private val context: Context) {
 
                     try {
                         Log.d(TAG, "Trying to reconnect")
-                        connectDevice()
+                        Thread.sleep(5000)
 
+                        connectDevice()
                         try {
                             val connectedThread = ConnectedThread(socket!!)
                             connectedThread.start()
-                            connectedThread.write("*".toByteArray())
-                            Log.d(TAG, "Wrote to output stream")
                         } catch (e: IOException) {
                             Log.d(TAG, "Can't write to output stream")
                         }
