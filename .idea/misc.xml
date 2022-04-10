@@ -3,6 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/layout/activity_heart_display.xml" value="0.16032608695652173" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/layout/activity_main.xml" value="0.16032608695652173" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/layout/activity_stats.xml" value="0.176" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/mipmap-anydpi-v26/BON.xml" value="0.117" />
         <entry key="app/src/main/res/drawable/svg_heart.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_bluetooth.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_heart_display.xml" value="0.25" />
