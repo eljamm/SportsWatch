@@ -3,14 +3,17 @@ package com.sport.smartwatch
 import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.*
+import android.bluetooth.BluetoothDevice
 import android.companion.AssociationRequest
 import android.companion.BluetoothDeviceFilter
 import android.companion.CompanionDeviceManager
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -22,6 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.github.mikephil.charting.charts.LineChart
+import java.io.IOException
 
 private const val TAG = "SportsWatch"   // Used for debugging
 private const val SELECT_DEVICE_REQUEST_CODE = 0
@@ -32,6 +36,7 @@ private const val MY_UUID = "00001101-0000-1000-8000-00805F9B34FB"
 class HeartDisplay : AppCompatActivity() {
     private lateinit var btUtils: BluetoothUtils
     private lateinit var chUtils: ChartUtils
+    private lateinit var chart: ChartUtils.Chart
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,32 +49,39 @@ class HeartDisplay : AppCompatActivity() {
         val btnStats = findViewById<Button>(R.id.btnStats)
         val btnBlue = findViewById<ImageButton>(R.id.btnBlue)
 
-        btnBlue.setOnClickListener{
+        btnBlue.setOnClickListener {
             // Enable bluetooth if it's disabled
             enableBluetooth()
 
             // Find nearby devices
-            findDevices()
+            if (btUtils.socket == null) {
+                findDevices()
+            } else {
+                try {
+                    val connectedThread = btUtils.ConnectedThread(btUtils.socket!!)
+                    connectedThread.start()
+                    connectedThread.write("*".toByteArray())
+                    Log.d(TAG, "Wrote to output stream")
+                } catch (e: IOException) {
+                    Log.d(TAG, "Can't write to output stream")
+                }
+            }
 
             // Set activity resources
             btnBlue.setImageResource(R.drawable.ic_bluetooth_connected)
+
+            txtBPM.visibility = View.VISIBLE
         }
 
-        val chart = chUtils.Chart(findViewById<LineChart>(R.id.chart))
+        chart = chUtils.Chart(findViewById<LineChart>(R.id.chart))
         chart.init()
         chart.update()
-        btnStats.setOnClickListener{
-            val intent = Intent(this,StatsActivity::class.java)
+
+        btnStats.setOnClickListener {
+            val intent = Intent(this, StatsActivity::class.java)
             var b = txtBPM.text.toString().toFloat()
             intent.putExtra("bpm", b)
             startActivity(intent)
-        }
-
-        if (btUtils.socket != null) {
-            if (btUtils.socket!!.isConnected) {
-                txtBPM.visibility=View.VISIBLE
-                txtBPM.text = btUtils.messages[btUtils.messages.size]
-            }
         }
     }
 
@@ -157,7 +169,9 @@ class HeartDisplay : AppCompatActivity() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
+                1)
             return
         }
     }

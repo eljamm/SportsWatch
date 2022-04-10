@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -39,9 +40,10 @@ class BluetoothUtils(private val context: Context) {
 
     init {
         // Define and Initialize the bluetooth adapter
-        adapter = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        adapter = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // SDK 31 and higher
-            val bluetoothManager = context.getSystemService(AppCompatActivity.BLUETOOTH_SERVICE) as BluetoothManager
+            val bluetoothManager =
+                context.getSystemService(AppCompatActivity.BLUETOOTH_SERVICE) as BluetoothManager
             bluetoothManager.adapter
         } else {
             // Legacy Devices
@@ -62,7 +64,9 @@ class BluetoothUtils(private val context: Context) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
+            ActivityCompat.requestPermissions(context as Activity,
+                arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
+                1)
             return
         }
     }
@@ -78,7 +82,8 @@ class BluetoothUtils(private val context: Context) {
         pairedDevices?.forEach { device ->
             val deviceName = device.name
             val deviceHardwareAddress = device.address // MAC address
-            Toast.makeText(context, "Bound with $deviceName", Toast.LENGTH_LONG).show()
+            //Toast.makeText(context, "Bound with $deviceName", Toast.LENGTH_LONG).show()
+            Log.d(TAG, "Bound with $deviceName")
 
             // Connect with paired device
             val connectThread = ConnectThread(device)
@@ -93,7 +98,7 @@ class BluetoothUtils(private val context: Context) {
         private var mmSocket: BluetoothSocket? = null
 
         init {
-            if (mmSocket == null)  {
+            if (mmSocket == null) {
                 checkPermission()
                 mmSocket = device.createRfcommSocketToServiceRecord(UUID.fromString(MY_UUID))
                 Log.d(TAG, "Connected to service")
@@ -135,17 +140,22 @@ class BluetoothUtils(private val context: Context) {
     /**
      * TODO
      */
-    inner class BluetoothHandler(): Handler(Looper.myLooper()!!) {
+    inner class BluetoothHandler() : Handler(Looper.myLooper()!!) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             try {
                 Log.d(TAG, "Read from input stream")
-                when(msg.what) {
+                when (msg.what) {
                     MESSAGE_READ -> {
                         var message: String = msg.obj as String
                         message = message.replace("\r", "").replace("\n", "")
                         messages.add(message)
                         Log.d(TAG, "Read $message")
+
+                        val txtBPM: TextView =
+                            (context as Activity).findViewById(R.id.txtBPM)
+
+                        txtBPM.text = message
                     }
 
                     MESSAGE_TOAST -> {
@@ -157,7 +167,7 @@ class BluetoothUtils(private val context: Context) {
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG,"Could not read value")
+                Log.e(TAG, "Could not read value")
             }
         }
     }
@@ -173,7 +183,7 @@ class BluetoothUtils(private val context: Context) {
         override fun run() {
             var numBytes: Int // bytes returned from read()
             var readMessage: StringBuilder = StringBuilder()
-            val mmBuffer: ByteArray = ByteArray(512) // mmBuffer store for the stream
+            //val mmBuffer: ByteArray = ByteArray(1024) // mmBuffer store for the stream
 
             // Keep listening to the InputStream until an exception occurs.
             while (true) {
@@ -186,7 +196,8 @@ class BluetoothUtils(private val context: Context) {
                     Log.d(TAG, "TIME: ${readMessage.toString()}")
 
                     if (read.contains("\n", ignoreCase = true)) {
-                        handler.obtainMessage(MESSAGE_READ, numBytes, -1, readMessage.toString()).sendToTarget()
+                        handler.obtainMessage(MESSAGE_READ, numBytes, -1, readMessage.toString())
+                            .sendToTarget()
                         readMessage.setLength(0)
                     }
                 } catch (e: IOException) {
@@ -197,6 +208,22 @@ class BluetoothUtils(private val context: Context) {
 
                     btnBlue.setImageResource(R.drawable.ic_bluetooth_disabled)
 
+                    try {
+                        Log.d(TAG, "Trying to reconnect")
+                        connectDevice()
+
+                        try {
+                            val connectedThread = ConnectedThread(socket!!)
+                            connectedThread.start()
+                            connectedThread.write("*".toByteArray())
+                            Log.d(TAG, "Wrote to output stream")
+                        } catch (e: IOException) {
+                            Log.d(TAG, "Can't write to output stream")
+                        }
+
+                    } catch (e: Exception) {
+                        Log.d(TAG, "Could not reconnect")
+                    }
                     break
                 }
             }
