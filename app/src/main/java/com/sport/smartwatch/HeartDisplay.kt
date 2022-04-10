@@ -113,7 +113,7 @@ class HeartDisplay : AppCompatActivity() {
                 val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                 requestBluetooth.launch(enableBtIntent)
                 //change image to bluetooth static
-                imgbtn.setImageResource(R.drawable.bstatic)
+
             }
         }
     }

@@ -22,12 +22,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartWatch">
-        <activity
-            android:name=".StatsActivity"
-            android:exported="false" />
+
         <activity
             android:name=".HeartDisplay"
-            android:exported="false" />
+            android:label="YourAppName"
+            android:theme="@style/Theme.SmartWatch"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".StatsActivity"
+            android:theme="@style/Theme.SmartWatch"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="package.OtherActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
 
     </application>
 
