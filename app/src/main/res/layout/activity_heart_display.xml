@@ -31,7 +31,7 @@
         app:layout_constraintTop_toBottomOf="@+id/chart" />
 
     <ImageButton
-        android:id="@+id/btn"
+        android:id="@+id/btnBlue"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:contentDescription="@string/app_name"
@@ -96,7 +96,8 @@
             android:text="@string/bpm"
             android:textColor="@color/black"
             android:textSize="25sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:visibility="invisible" />
 
     </FrameLayout>
 

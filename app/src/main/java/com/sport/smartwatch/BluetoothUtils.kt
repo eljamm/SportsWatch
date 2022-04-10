@@ -6,27 +6,24 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
-import android.companion.AssociationRequest
-import android.companion.BluetoothDeviceFilter
 import android.companion.CompanionDeviceManager
 import android.content.Context
-import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.*
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.lang.Exception
-import java.lang.StringBuilder
 import java.util.*
-import kotlin.collections.ArrayList
+
 
 private const val TAG = "SportsWatch"   // Used for debugging
 private const val SELECT_DEVICE_REQUEST_CODE = 0
@@ -194,6 +191,12 @@ class BluetoothUtils(private val context: Context) {
                     }
                 } catch (e: IOException) {
                     Log.d(TAG, "Input stream was disconnected", e)
+
+                    val btnBlue: ImageButton =
+                        (context as Activity).findViewById(R.id.btnBlue)
+
+                    btnBlue.setImageResource(R.drawable.ic_bluetooth_disabled)
+
                     break
                 }
             }
