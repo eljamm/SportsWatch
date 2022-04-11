@@ -58,12 +58,19 @@ class HeartDisplay : AppCompatActivity() {
                 findDevices()
             } else {
                 try {
-                    val connectedThread = btUtils.ConnectedThread(btUtils.socket!!)
-                    connectedThread.start()
-                    connectedThread.write("*".toByteArray())
-                    Log.d(TAG, "Wrote to output stream")
+                    checkPermission()
+                    btUtils.socket!!.connect()
+
+                    try {
+                        val connectedThread = btUtils.ConnectedThread(btUtils.socket!!)
+                        connectedThread.start()
+                        connectedThread.write("*".toByteArray())
+                        Log.d(TAG, "Wrote to output stream")
+                    } catch (e: IOException) {
+                        Log.d(TAG, "Can't write to output stream")
+                    }
                 } catch (e: IOException) {
-                    Log.d(TAG, "Can't write to output stream")
+                    Log.d(TAG, "Can't connect to socket")
                 }
             }
 

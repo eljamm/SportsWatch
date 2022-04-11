@@ -11,12 +11,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.*
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -95,6 +91,7 @@ class BluetoothUtils(private val context: Context) {
      * Connect with paired device
      */
     inner class ConnectThread(device: BluetoothDevice) : Thread() {
+        private val device = device
         private var mmSocket: BluetoothSocket? = null
 
         init {
@@ -117,8 +114,19 @@ class BluetoothUtils(private val context: Context) {
                 Log.d(TAG, "Connected to device")
             } catch (connectException: IOException) {
                 try {
-                    //mmSocket?.close()
-                    //Log.d(TAG, "Closed socket")
+                    mmSocket?.close()
+                    Log.d(TAG, "Closed socket")
+//                    Log.d(TAG, "Trying fallback")
+//
+//                    val clazz: Class<*> = mmSocket?.remoteDevice!!.javaClass
+//                    val paramTypes = arrayOf<Class<*>>(Integer.TYPE)
+//
+//                    val m: Method = clazz.getMethod("createRfcommSocket", *paramTypes)
+//                    val params = arrayOf<Any>(Integer.valueOf(1))
+//
+//                    val fallbackSocket = m.invoke(mmSocket?.remoteDevice, params) as BluetoothSocket
+//                    fallbackSocket.connect()
+
                 } catch (closeException: IOException) {
                     Log.d(TAG, "Can't close socket")
                 }
@@ -178,7 +186,7 @@ class BluetoothUtils(private val context: Context) {
     inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
         private val mmInStream: InputStream = mmSocket.inputStream
         private val mmOutStream: OutputStream = mmSocket.outputStream
-        private val mmBuffer: ByteArray = ByteArray(2048) // mmBuffer store for the stream
+        private val mmBuffer: ByteArray = ByteArray(1024) // mmBuffer store for the stream
 
         override fun run() {
             var numBytes: Int // bytes returned from read()
@@ -208,21 +216,25 @@ class BluetoothUtils(private val context: Context) {
 
                     btnBlue.setImageResource(R.drawable.ic_bluetooth_disabled)
 
-                    try {
-                        Log.d(TAG, "Trying to reconnect")
-                        Thread.sleep(5000)
+//                    try {
+//                        Log.d(TAG, "Trying to reconnect", e)
+//                        connectDevice()
+//
+//                        checkPermission()
+//                        socket!!.connect()
+//
+//                        try {
+//                            val connectedThread = ConnectedThread(socket!!)
+//                            connectedThread.start()
+//                            connectedThread.write("*".toByteArray())
+//                            Log.d(TAG, "Wrote to output stream")
+//                        } catch (e: IOException) {
+//                            Log.d(TAG, "Can't write to output stream")
+//                        }
+//                    } catch (e: IOException) {
+//                        Log.d(TAG, "Can't connect to socket")
+//                    }
 
-                        connectDevice()
-                        try {
-                            val connectedThread = ConnectedThread(socket!!)
-                            connectedThread.start()
-                        } catch (e: IOException) {
-                            Log.d(TAG, "Can't write to output stream")
-                        }
-
-                    } catch (e: Exception) {
-                        Log.d(TAG, "Could not reconnect")
-                    }
                     break
                 }
             }
