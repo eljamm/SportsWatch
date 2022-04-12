@@ -109,9 +109,9 @@ class HeartDisplay : AppCompatActivity() {
         for (item in bpmList){
             somme=somme+item
         }
-        val bpmAverage=somme/bpmList.size
+        val bpmAverage=(somme/bpmList.size).toFloat()
 
-        calculateCal(age,weight,gender)
+        val calories=calculateCal(age,weight,gender,bpmAverage)
     }
 
     /**
@@ -231,13 +231,15 @@ class HeartDisplay : AppCompatActivity() {
         }
     }
 
-    private fun calculateCal(age:Float = 0.0F,weight:Float =0.0F,gender:String="Male"){
-
+    private fun calculateCal(age:Float = 0.0F,weight:Float =0.0F,gender:String="Male",bpmAverage:Float =0.0F){
+        val duration=45
         if(gender=="Female"){
-            val calories =duration*(0.4472*bmpAverage-0.1263*weight+0.074*age-20.4022)/4.184
+            val calories =duration*(0.4472*bpmAverage-0.1263*weight+0.074*age-20.4022)/4.184
+            return calories
         }
         else if(gender=="Male"){
             val calories =duration*(0.6309*bpmAverage-0.1988*weight+0.2017*age-55.0969)/4.184
+            return calories
         }
 
     }
