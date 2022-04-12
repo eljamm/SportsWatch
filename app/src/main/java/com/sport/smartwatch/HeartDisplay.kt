@@ -209,6 +209,10 @@ class HeartDisplay : AppCompatActivity() {
         }
     }
 
+    private fun calculateCal(){
+
+    }
+
     private var requestBluetooth =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -225,3 +229,4 @@ class HeartDisplay : AppCompatActivity() {
             }
         }
 }
+
