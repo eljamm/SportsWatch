@@ -37,17 +37,35 @@ class HeartDisplay : AppCompatActivity() {
     private lateinit var btUtils: BluetoothUtils
     private lateinit var chUtils: ChartUtils
     private lateinit var chart: ChartUtils.Chart
+    private val bpmList= ArrayList<Float>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart_display)
 
+
+
+
         btUtils = BluetoothUtils(this)
         chUtils = ChartUtils()
-
+        val txtname=findViewById<TextView>(R.id.txtT)
         val txtBPM = findViewById<TextView>(R.id.txtBPM)
-        val btnStats = findViewById<Button>(R.id.btnStats)
+
         val btnBlue = findViewById<ImageButton>(R.id.btnBlue)
+        var weight=0.0F
+        var age=0.0F
+        var gender="Male"
+
+
+        val extras= intent.extras
+
+        if(extras!=null){
+
+            txtname.setText(extras.getString("name"))
+            weight = extras.getString("Weight").toString().toFloat()
+            age = extras.getString("age").toString().toFloat()
+            gender = extras.getString("gender").toString() }
+
 
         btnBlue.setOnClickListener {
             // Enable bluetooth if it's disabled
@@ -84,12 +102,16 @@ class HeartDisplay : AppCompatActivity() {
         chart.init()
         chart.update()
 
-        btnStats.setOnClickListener {
-            val intent = Intent(this, StatsActivity::class.java)
-            var b = txtBPM.text.toString().toFloat()
-            intent.putExtra("bpm", b)
-            startActivity(intent)
+        var b = txtBPM.text.toString().toFloat()
+
+        bpmList.add(b)
+        var somme = 0.0
+        for (item in bpmList){
+            somme=somme+item
         }
+        val bpmAverage=somme/bpmList.size
+
+        calculateCal(age,weight,gender)
     }
 
     /**
@@ -209,7 +231,14 @@ class HeartDisplay : AppCompatActivity() {
         }
     }
 
-    private fun calculateCal(){
+    private fun calculateCal(age:Float = 0.0F,weight:Float =0.0F,gender:String="Male"){
+
+        if(gender=="Female"){
+            val calories =duration*(0.4472*bmpAverage-0.1263*weight+0.074*age-20.4022)/4.184
+        }
+        else if(gender=="Male"){
+            val calories =duration*(0.6309*bpmAverage-0.1988*weight+0.2017*age-55.0969)/4.184
+        }
 
     }
 

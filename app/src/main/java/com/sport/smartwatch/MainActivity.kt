@@ -39,8 +39,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val intentHeart = Intent(this,HeartDisplay::class.java)
 
         listview=findViewById(R.id.lstPerson)
+        val txtName=findViewById<TextView>(R.id.txtName)
 
         val extras = intent.extras
 
@@ -53,11 +55,12 @@ class MainActivity : AppCompatActivity() {
             txtName.setText(name)
 
             listview.setOnItemClickListener { adapterView, view, i, l ->
-                val intentHeart = Intent(this,HeartDisplay::class.java)
+
                 intentHeart.putExtra("name",name)
                 intentHeart.putExtra("weight",weight)
                 intentHeart.putExtra("age",age)
                 intentHeart.putExtra("gender",gender)
+                startActivity(intentHeart)
             }
 
 
