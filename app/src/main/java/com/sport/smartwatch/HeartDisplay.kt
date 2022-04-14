@@ -231,17 +231,21 @@ class HeartDisplay : AppCompatActivity() {
         }
     }
 
-    private fun calculateCal(age:Float = 0.0F,weight:Float =0.0F,gender:String="Male",bpmAverage:Float =0.0F){
-        val duration=45
-        if(gender=="Female"){
-            val calories =duration*(0.4472*bpmAverage-0.1263*weight+0.074*age-20.4022)/4.184
-            return calories
+    private fun calculateCal(age:Float = 0.0F,weight:Float =0.0F,gender:String="Male",bpmAverage:Float =0.0F): Float {
+        val duration = 45
+        return when (gender) {
+            "Female" -> {
+                val calories = duration*(0.4472*bpmAverage-0.1263*weight+0.074*age-20.4022)/4.184
+                calories.toFloat()
+            }
+            "Male" -> {
+                val calories =duration*(0.6309*bpmAverage-0.1988*weight+0.2017*age-55.0969)/4.184
+                calories.toFloat()
+            }
+            else -> {
+                0.0F
+            }
         }
-        else if(gender=="Male"){
-            val calories =duration*(0.6309*bpmAverage-0.1988*weight+0.2017*age-55.0969)/4.184
-            return calories
-        }
-
     }
 
     private var requestBluetooth =
