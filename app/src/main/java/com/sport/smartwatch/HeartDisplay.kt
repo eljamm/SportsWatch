@@ -246,6 +246,7 @@ class HeartDisplay : AppCompatActivity() {
                 0.0F
             }
         }
+
     }
 
     private var requestBluetooth =
