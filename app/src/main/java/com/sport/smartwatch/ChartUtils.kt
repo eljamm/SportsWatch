@@ -77,7 +77,7 @@ class ChartUtils {
         }
 
         fun update() {
-            if (index<maxNumber) {
+            if (index < maxNumber) {
                 incrementIndex()
                 randomData(1)
             } else {
@@ -93,7 +93,7 @@ class ChartUtils {
             array.add(Point(index, number))
         }
 
-        fun randomData(times: Int) {
+        private fun randomData(times: Int) {
             repeat(times) {
                 incrementIndex()
                 val number = (70..120).random()

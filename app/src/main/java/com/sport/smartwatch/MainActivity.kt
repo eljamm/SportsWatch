@@ -1,78 +1,110 @@
 package com.sport.smartwatch
 
-import android.Manifest
-import android.Manifest.permission.BLUETOOTH_CONNECT
-import android.app.Activity
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.companion.AssociationRequest
-import android.companion.BluetoothDeviceFilter
-import android.companion.CompanionDeviceManager
 import android.content.Intent
-import android.content.IntentSender
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import android.widget.Button
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import java.io.IOException
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 
 private const val TAG = "SportsWatch"   // Used for debugging
-private const val SELECT_DEVICE_REQUEST_CODE = 0
-private const val ARDUINO = "18:E4:40:00:06"  // Not used
-private const val MY_UUID = "00001101-0000-1000-8000-00805F9B34FB"
 
 @RequiresApi(Build.VERSION_CODES.O)
 class MainActivity : AppCompatActivity() {
-    private lateinit var listview:ListView
+    private lateinit var listview: ListView
+    private var profileList = ArrayList<Profile>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val intentHeart = Intent(this,HeartDisplay::class.java)
 
-        listview=findViewById(R.id.lstPerson)
-        val txtName=findViewById<TextView>(R.id.txtName)
+        loadData()
 
-        val extras = intent.extras
-
-        if (extras!=null){
-            val name = extras.getString("name")
-            val weight= extras.getString("weight")
-            val age= extras.getString("age")
-            val gender = extras.getString("gender")
-
-            txtName.setText(name)
-
-            listview.setOnItemClickListener { adapterView, view, i, l ->
-
-                intentHeart.putExtra("name",name)
-                intentHeart.putExtra("weight",weight)
-                intentHeart.putExtra("age",age)
-                intentHeart.putExtra("gender",gender)
-                startActivity(intentHeart)
-            }
-
-
-
-
-
+        val txtName = findViewById<TextView>(R.id.txtName)
+        val btnAdd = findViewById<Button>(R.id.btnAdd)
+        btnAdd.setOnClickListener {
+            val intentAdd = Intent(this@MainActivity, StatsActivity::class.java)
+            startActivity(intentAdd)
         }
 
+        listview = findViewById(R.id.lstPerson)
+        listview.adapter = ProfileAdapter(this@MainActivity, profileList)
 
+        listview.setOnItemClickListener { adapterView, view, i, l ->
+            val intentHeart = Intent(this@MainActivity, HeartDisplay::class.java)
+            intent.putExtra("name", profileList[i].name)
+            intent.putExtra("weight", profileList[i].weight)
+            intent.putExtra("age", profileList[i].age)
+            intent.putExtra("gender", profileList[i].gender)
+            startActivity(intentHeart)
+        }
+    }
 
+    private fun loadData() {
+        // method to load arraylist from shared prefs
+        // initializing our shared prefs with name as
+        // shared preferences.
+        val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
 
+        // creating a variable for gson.
+        val gson = Gson()
 
+        // below line is to get to string present from our
+        // shared prefs if not present setting it as null.
+        val json: String? = sharedPreferences.getString("profiles", null)
 
-    }}
+        // below line is to get the type of our array list.
+        val type = object : TypeToken<ArrayList<Profile?>?>() {}.type
+
+        if (json != null) {
+            // in below line we are getting data from gson
+            // and saving it to our array list
+            try {
+                profileList = gson.fromJson(json, type)
+            } catch (e: Exception) {
+                Log.e(TAG, "loadData: failed", e)
+            }
+        }
+
+        // checking below if the array list is empty or not
+        if (profileList == null) {
+            // if the array list is empty
+            // creating a new array list.
+            profileList = ArrayList<Profile>()
+        }
+    }
+
+    private fun saveData() {
+        // method for saving the data in array list.
+        // creating a variable for storing data in
+        // shared preferences.
+        val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
+
+        // creating a variable for editor to
+        // store data in shared preferences.
+        val editor = sharedPreferences.edit()
+
+        // creating a new variable for gson.
+        val gson = Gson()
+
+        // getting data from gson and storing it in a string.
+        val json = gson.toJson(profileList)
+
+        // below line is to save data in shared
+        // prefs in the form of string.
+        editor.putString("profiles", json)
+
+        // below line is to apply changes
+        // and save data in shared prefs.
+        editor.apply()
+
+        // after saving data we are displaying a toast message.
+        Toast.makeText(this, "Saved Array List to Shared preferences. ",
+            Toast.LENGTH_SHORT).show()
+    }
+}
 
