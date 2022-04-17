@@ -9,7 +9,7 @@ import com.github.mikephil.charting.data.LineDataSet
 
 class ChartUtils {
     inner class Chart(private val lineChart: LineChart) {
-        private val data = ChartData(100)
+        private val data = ChartData(40)
         private val entries: ArrayList<Entry> = ArrayList()
 
         init {
@@ -38,6 +38,7 @@ class ChartUtils {
             lineDataSet.setCircleColor(Color.BLUE)
             lineDataSet.highLightColor = Color.BLUE
             lineDataSet.setDrawValues(false)
+            lineDataSet.setDrawCircles(false)
 
             val lineData = LineData(lineDataSet)
 

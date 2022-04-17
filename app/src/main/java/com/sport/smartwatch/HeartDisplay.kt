@@ -141,16 +141,20 @@ class HeartDisplay : AppCompatActivity() {
                     message = message.replace("\r", "").replace("\n", "")
                     Log.d(TAG, "Read: $message")
 
-                    if (message[0] == '*') {
-                        val chartValues = message.split("*")
-                        for (value in chartValues) {
-                            if (value.isNotEmpty() && !value.contains(".", ignoreCase = true)) {
-                                chart.add(value.toInt())
+                    try {
+                        if (message.contains("*")) {
+                            val chartValues = message.split("*")
+                            for (value in chartValues) {
+                                if (value.isNotEmpty() && !value.contains(".", ignoreCase = true)) {
+                                    chart.add(value.toInt())
+                                }
                             }
+                        } else if (message.contains("#")){
+                            val txtBPM: TextView = this@HeartDisplay.findViewById(R.id.txtBPM)
+                            txtBPM.text = message.split("#")[1]
                         }
-                    } else {
-                        val txtBPM: TextView = this@HeartDisplay.findViewById(R.id.txtBPM)
-                        txtBPM.text = message
+                    } catch (e: Exception) {
+                        Log.e(TAG, "handleMessage: Stopped", e)
                     }
 
                     //val calories = calculateCal(age, weight, gender, message.toFloat())
