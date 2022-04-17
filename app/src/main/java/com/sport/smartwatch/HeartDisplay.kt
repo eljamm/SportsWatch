@@ -7,8 +7,7 @@ import android.bluetooth.BluetoothDevice
 import android.companion.AssociationRequest
 import android.companion.BluetoothDeviceFilter
 import android.companion.CompanionDeviceManager
-import android.content.Intent
-import android.content.IntentSender
+import android.content.*
 import android.content.pm.PackageManager
 import android.os.*
 import android.util.Log
@@ -79,13 +78,12 @@ class HeartDisplay : AppCompatActivity() {
             // Find nearby devices
             findDevices()
 
-            // Set activity resources
-            btnBlue.setImageResource(R.drawable.ic_bluetooth_connected)
-            
-            try {
-                btUtils.write("*".toByteArray())
-            } catch (e: Exception) {
-                Log.e(TAG, "onCreate: why", e)
+            // Connect to paired devices
+            connectDevice()
+
+            if (btUtils.adapter?.bondedDevices!!.isNotEmpty()) {
+                // Set activity resources
+                btnBlue.setImageResource(R.drawable.ic_bluetooth_connected)
             }
         }
     }
@@ -135,8 +133,8 @@ class HeartDisplay : AppCompatActivity() {
                     message = message.replace("\r", "").replace("\n", "")
                     Log.d(TAG, "Read: $message")
 
-                    //val txtBPM: TextView = (this as Activity).findViewById(R.id.txtBPM)
-                    //txtBPM.text = message
+                    val txtBPM: TextView = this@HeartDisplay.findViewById(R.id.txtBPM)
+                    txtBPM.text = message
                 }
                 MESSAGE_DEVICE_NAME -> {
                     // save the connected device's name
@@ -192,16 +190,8 @@ class HeartDisplay : AppCompatActivity() {
 
         // Ask the user to enable bluetooth if it's disabled
         if (btUtils.adapter?.isEnabled == false) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // SDK 31 and higher
-                requestMultiplePermissions.launch(arrayOf(
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_CONNECT))
-            } else {
-                // Legacy Devices
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                requestBluetooth.launch(enableBtIntent)
-            }
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            requestBluetooth.launch(enableBtIntent)
         }
     }
 
@@ -240,23 +230,29 @@ class HeartDisplay : AppCompatActivity() {
                             Log.d(TAG, "Cannot pair with device. <$error>")
                         }
                     }, null)
-                
-                try {
-                    btUtils.connectDevice()
-                    sendMessage("*")
-                } catch (e: Exception) {
-                    Log.d(TAG, "findDevices: couldn't connect to device")
-                }
-            } else {
-                val pairedDevices: Set<BluetoothDevice>? = btUtils.adapter?.bondedDevices
-                pairedDevices?.forEach { device ->
-                    try {
-                        btUtils.connect(device)
-                        sendMessage("*")
-                    } catch (e: Exception) {
-                        Log.e(TAG, "findDevices: can't connect to bonded device", e)
-                    }
-                }
+            }
+        }
+    }
+
+    /**
+     * Connect with paired devices
+     */
+    private fun connectDevice() {
+        checkPermission()
+
+        // Get paired devices
+        val pairedDevices: Set<BluetoothDevice>? = btUtils.adapter?.bondedDevices
+
+        if (pairedDevices!!.isNotEmpty()) {
+            pairedDevices.forEach { device ->
+                val deviceName = device.name
+                val deviceHardwareAddress = device.address // MAC address
+
+                Log.d(TAG, "Bonded with $deviceName")
+
+                // Connect with paired device
+                Log.d(TAG, "connectDevice: Trying to connect with $deviceName")
+                btUtils.connect(device)
             }
         }
     }
@@ -350,7 +346,7 @@ class HeartDisplay : AppCompatActivity() {
             REQUEST_CONNECT_DEVICE -> {
                 // When DeviceListActivity returns with a device to connect
                 if (resultCode == RESULT_OK) {
-                    btUtils.connectDevice()
+                    connectDevice()
                 }
             }
             REQUEST_ENABLE_BT -> {
