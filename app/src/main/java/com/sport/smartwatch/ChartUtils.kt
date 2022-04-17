@@ -12,6 +12,22 @@ class ChartUtils {
         private val data = ChartData(20)
         private val entries: ArrayList<Entry> = ArrayList()
 
+        init {
+            lineChart.setNoDataText("Waiting for data")
+            lineChart.description.isEnabled = false
+            lineChart.setDrawGridBackground(false)
+            lineChart.setDrawBorders(false)
+            lineChart.axisLeft.isEnabled = true
+            lineChart.axisLeft.spaceTop = 40F
+            lineChart.axisLeft.spaceBottom = 40F
+            lineChart.axisRight.isEnabled = false
+            lineChart.xAxis.isEnabled = false
+            lineChart.setDrawMarkers(false)
+            lineChart.legend.isEnabled = false
+
+            setup(entries)
+        }
+
         private fun setup(entries: ArrayList<Entry>) {
             val lineDataSet = LineDataSet(entries, "")
 
@@ -29,31 +45,7 @@ class ChartUtils {
             lineChart.invalidate()
         }
 
-        fun init() {
-            lineChart.setNoDataText("Waiting for data")
-            lineChart.description.isEnabled = false
-            lineChart.setDrawGridBackground(false)
-            lineChart.setDrawBorders(false)
-            lineChart.axisLeft.isEnabled = true
-            lineChart.axisLeft.spaceTop = 40F
-            lineChart.axisLeft.spaceBottom = 40F
-            lineChart.axisRight.isEnabled = false
-            lineChart.xAxis.isEnabled = false
-            lineChart.setDrawMarkers(false)
-            lineChart.legend.isEnabled = false
-
-//        data.init()
-            if (data.array.size != 0) {
-                for (element in data.array) {
-                    entries.add(Entry(element.x.toFloat(), element.y.toFloat()))
-                }
-            }
-
-            setup(entries)
-        }
-
         fun update() {
-            data.update()
             entries.removeAll(entries)
 
             for (element in data.array) {
@@ -62,21 +54,36 @@ class ChartUtils {
 
             setup(entries)
         }
+
+        fun add(number: Int) {
+            data.addData(number)
+            update()
+        }
+
+        fun addRandom() {
+            data.addRandom()
+            update()
+        }
     }
 
     inner class ChartData(limit: Int = 10) {
         private val maxNumber: Int = limit
+        private var index: Int = 0
         val array: ArrayList<Point> = ArrayList(maxNumber)
-        var index: Int = 0
 
-        fun init() {
-            repeat(maxNumber) {
+        fun addData(number: Int) {
+            if (index < maxNumber) {
                 incrementIndex()
-                array.addAll(listOf(Point(index,0)))
+                array.add(Point(index, number))
+            } else {
+                index = maxNumber
+                for (element in array) { element.x -= 1; }
+                array.removeAt(0)
+                array.add(Point(index, number))
             }
         }
 
-        fun update() {
+        fun addRandom() {
             if (index < maxNumber) {
                 incrementIndex()
                 randomData(1)
@@ -88,16 +95,18 @@ class ChartUtils {
             }
         }
 
-        fun addData(number: Int) {
-            incrementIndex()
-            array.add(Point(index, number))
-        }
-
         private fun randomData(times: Int) {
             repeat(times) {
                 incrementIndex()
                 val number = (70..120).random()
                 array.add(Point(index, number))
+            }
+        }
+
+        fun zeros() {
+            repeat(maxNumber) {
+                incrementIndex()
+                array.addAll(listOf(Point(index,0)))
             }
         }
 

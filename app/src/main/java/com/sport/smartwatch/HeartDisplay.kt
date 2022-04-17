@@ -7,11 +7,12 @@ import android.bluetooth.BluetoothDevice
 import android.companion.AssociationRequest
 import android.companion.BluetoothDeviceFilter
 import android.companion.CompanionDeviceManager
-import android.content.*
+import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.*
 import android.util.Log
-import android.widget.ImageButton
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +20,8 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.github.mikephil.charting.charts.LineChart
+
 
 private const val TAG = "SportsWatch"   // Used for debugging
 
@@ -52,9 +55,10 @@ class HeartDisplay : AppCompatActivity() {
     private var gender = "Male"
 
     // Views
+    private lateinit var lineChart: LineChart
     private lateinit var txtCalories: TextView
     private lateinit var txtBPM: TextView
-    private lateinit var btnBlue: ImageButton
+    private lateinit var btnBlue: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +87,7 @@ class HeartDisplay : AppCompatActivity() {
 
             if (btUtils.adapter?.bondedDevices!!.isNotEmpty()) {
                 // Set activity resources
-                btnBlue.setImageResource(R.drawable.ic_bluetooth_connected)
+                btnBlue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bluetooth_connected, 0, 0, 0)
             }
         }
     }
@@ -114,12 +118,16 @@ class HeartDisplay : AppCompatActivity() {
                 MESSAGE_STATE_CHANGE -> when (msg.arg1) {
                     STATE_CONNECTED -> {
                         Log.d(TAG, "handleMessage: STATE_CONNECTED to $connectedDeviceName")
+                        btnBlue.text = "Connected"
                     }
                     STATE_CONNECTING -> {
                         Log.d(TAG, "handleMessage: STATE_CONNECTING to $connectedDeviceName")
+                        btnBlue.text = "Connecting"
                     }
                     STATE_LISTEN, STATE_NONE -> {
                         Log.d(TAG, "handleMessage: STATE_LISTEN, STATE_NONE")
+                        btnBlue.text = "Connect"
+                        btnBlue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bluetooth_disabled, 0, 0, 0)
                     }
                 }
                 MESSAGE_WRITE -> {
@@ -135,6 +143,12 @@ class HeartDisplay : AppCompatActivity() {
 
                     val txtBPM: TextView = this@HeartDisplay.findViewById(R.id.txtBPM)
                     txtBPM.text = message
+
+                    //val calories = calculateCal(age, weight, gender, message.toFloat())
+                    //txtCalories.text = "Calories Burned: $calories"
+
+                    //chart.addRandom()
+                    chart.add(message.floatToInt())
                 }
                 MESSAGE_DEVICE_NAME -> {
                     // save the connected device's name
@@ -146,6 +160,10 @@ class HeartDisplay : AppCompatActivity() {
                     Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    fun String.floatToInt(): Int {
+        return this.toFloat().toInt()
     }
 
     /**
@@ -163,9 +181,8 @@ class HeartDisplay : AppCompatActivity() {
         // Chart
         chUtils = ChartUtils()
 
-        chart = chUtils.Chart(findViewById(R.id.chart))
-        chart.init()
-        //chart.update()
+        lineChart = findViewById(R.id.chart)
+        chart = chUtils.Chart(lineChart)
 
         txtBPM = findViewById(R.id.txtBPM)
         txtCalories = findViewById(R.id.txtCalories)
@@ -318,7 +335,6 @@ class HeartDisplay : AppCompatActivity() {
         bpmAverage: Float = 0.0F,
     ): Float {
         val duration = 45
-
         return when (gender) {
             "Female" -> {
                 val calories = duration*(0.4472*bpmAverage-0.1263*weight+0.074*age-20.4022)/4.184

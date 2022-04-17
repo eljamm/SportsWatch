@@ -1,23 +1,25 @@
 package com.sport.smartwatch
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.bluetooth.*
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothSocket
 import android.companion.CompanionDeviceManager
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import android.util.Log
-import android.widget.ImageButton
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.nio.charset.Charset
 import java.util.*
 
 
@@ -55,9 +57,6 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
     var mState: Int = 0
     var newState: Int = 0
 
-    /**
-     * TODO
-     */
     init {
         // Define and Initialize the bluetooth adapter
         adapter = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -143,11 +142,6 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
             connectedThread = null
         }
 
-//        if (acceptThread != null) {
-//            acceptThread!!.cancel()
-//            acceptThread = null
-//        }
-
         mState = STATE_NONE
         Log.i(TAG, "stop: STATE_NONE")
 
@@ -202,12 +196,6 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
             connectedThread!!.cancel()
             connectedThread = null
         }
-
-        // Cancel the accept thread because we only want to connect to one device
-//        if (acceptThread != null) {
-//            acceptThread!!.cancel()
-//            acceptThread = null
-//        }
 
         // Start the thread to manage the connection and perform transmissions
         connectedThread = ConnectedThread(socket!!)
@@ -283,6 +271,7 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
 
         // Start the service over to restart listening mode
         this@BluetoothUtils.start()
+        //this@BluetoothUtils.restart()
     }
 
     /**
@@ -400,11 +389,6 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
                     }
                 } catch (e: IOException) {
                     Log.d(TAG, "Input stream was disconnected", e)
-
-                    val btnBlue: ImageButton =
-                        (context as Activity).findViewById(R.id.btnBlue)
-
-                    btnBlue.setImageResource(R.drawable.ic_bluetooth_disabled)
                     connectionLost()
                     break
                 }
@@ -457,69 +441,6 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
             ActivityCompat.requestPermissions(context as Activity,
                 arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
             return
-        }
-    }
-
-    /**
-     * TODO
-     */
-    @SuppressLint("MissingPermission")
-    internal inner class AcceptThread : Thread() {
-        private var mmServerSocket: BluetoothServerSocket? = null
-
-        init {
-            var tmpServerSocket: BluetoothServerSocket? = null
-
-            try {
-                tmpServerSocket = adapter?.listenUsingInsecureRfcommWithServiceRecord(NAME,
-                    UUID.fromString(MY_UUID))
-            } catch (e: Exception) {
-                Log.e(TAG, "AcceptThread: listen failed", e)
-            }
-
-            mmServerSocket = tmpServerSocket
-            mState = STATE_LISTEN
-        }
-
-        override fun run() {
-            Log.d(TAG, "run: begin AcceptThread")
-
-            // Keep listening until exception occurs or a socket is returned.
-            while (mState != STATE_CONNECTED) {
-                val socket: BluetoothSocket? = try {
-                    mmServerSocket?.accept()
-                } catch (e: IOException) {
-                    Log.e(TAG, "Socket's accept() method failed", e)
-                    null
-                }
-
-                // If a connection was accepted
-                if (socket != null) {
-                    synchronized(this@BluetoothUtils) {
-                        when (mState) {
-                            STATE_LISTEN, STATE_CONNECTING ->       // Situation normal. Start the connected thread.
-                                connected(socket, socket.remoteDevice)
-                            STATE_NONE, STATE_CONNECTED ->          // Either not ready or already connected. Terminate new socket.
-                                try {
-                                    socket.close()
-                                } catch (e: IOException) {
-                                    Log.e(TAG, "Could not close unwanted socket", e)
-                                }
-                            else -> {}
-                        }
-                    }
-                }
-            }
-        }
-
-        // Closes the connect socket and causes the thread to finish.
-        fun cancel() {
-            try {
-                Log.d(TAG, "cancel: 3")
-                mmServerSocket?.close()
-            } catch (e: IOException) {
-                Log.e(TAG, "Could not close the connect socket", e)
-            }
         }
     }
 }
