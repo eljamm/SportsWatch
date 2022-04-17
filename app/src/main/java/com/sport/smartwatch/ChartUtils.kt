@@ -9,7 +9,7 @@ import com.github.mikephil.charting.data.LineDataSet
 
 class ChartUtils {
     inner class Chart(private val lineChart: LineChart) {
-        private val data = ChartData(20)
+        private val data = ChartData(100)
         private val entries: ArrayList<Entry> = ArrayList()
 
         init {
