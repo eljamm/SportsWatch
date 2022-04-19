@@ -1,5 +1,4 @@
 package com.sport.smartwatch
-
 import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -7,11 +6,11 @@ import android.bluetooth.BluetoothDevice
 import android.companion.AssociationRequest
 import android.companion.BluetoothDeviceFilter
 import android.companion.CompanionDeviceManager
-import android.content.Intent
-import android.content.IntentSender
+import android.content.*
 import android.content.pm.PackageManager
 import android.os.*
 import android.util.Log
+import android.view.View.inflate
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -19,8 +18,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.resources.Compatibility.Api21Impl.inflate
 import androidx.core.app.ActivityCompat
+import androidx.core.content.res.ColorStateListInflaterCompat.inflate
+import androidx.core.graphics.drawable.DrawableCompat.inflate
 import com.github.mikephil.charting.charts.LineChart
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 private const val TAG = "SportsWatch"   // Used for debugging
@@ -35,6 +39,8 @@ private const val SELECT_DEVICE_REQUEST_CODE = 0
 
 @RequiresApi(Build.VERSION_CODES.O)
 class HeartDisplay : AppCompatActivity() {
+
+
     // Bluetooth
     //private val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
     //private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
@@ -62,7 +68,9 @@ class HeartDisplay : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_heart_display)
+
 
         setupApp()
         checkPermission()
@@ -366,6 +374,56 @@ class HeartDisplay : AppCompatActivity() {
 
         return (somme / bpmList.size)
     }
+    private fun time() : Float {
+        val StartPausebtn=findViewById<Button>(R.id.btnSTARTTIMER)
+        val Resetbtn=findViewById<Button>(R.id.btnReset)
+
+        StartPausebtn.setOnClickListener{
+            startStopTimer()}
+        Resetbtn.setOnClickListener{
+            resetTimer()
+        }
+
+        serviceIntent = Intent(applicationContext, TimerService::class.java)
+        registerReceiver(updateTime, IntentFilter(TimerService.TIMER_UPDATED))
+
+    }
+    private val updateTime: BroadcastReceiver= object : BroadcastReceiver(){
+        override fun onReceive(context: Context, intent: Intent) {
+           time = intent.getDoubleExtra(TimerService.TIME_EXTRA,0.0)
+
+
+
+
+        }
+    }
+
+    private fun resetTimer(){
+        stopTimer()
+        time= 0.0
+
+    }
+
+    private fun startStopTimer(){
+        if(timeStarted)
+            stopTimer()
+        else
+            startTimer()
+
+    }
+
+    private fun startTimer() {
+        serviceIntent.putExtra(TimerService.TIME_EXTRA,time)
+        startService(serviceIntent)
+        timerStarted = true
+    }
+
+    private fun stopTimer() {
+
+        stopService(serviceIntent)
+        timerStarted = false
+    }
+
 
     internal fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         when (requestCode) {

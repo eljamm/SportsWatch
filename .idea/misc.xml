@@ -3,9 +3,19 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/layout/activity_heart_display.xml" value="0.16032608695652173" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.106" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/drawable/circle.xml" value="0.106" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/drawable/ic_bluetooth_connected.xml" value="0.106" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/drawable/ic_bluetooth_disabled.xml" value="0.106" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/drawable/ic_launcher_background.xml" value="0.106" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/drawable/ic_person.xml" value="0.106" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/drawable/ic_person_add.xml" value="0.106" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/drawable/ic_person_modify.xml" value="0.106" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/drawable/svg_heart.xml" value="0.106" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/layout/activity_heart_display.xml" value="0.176" />
         <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/layout/activity_main.xml" value="0.16032608695652173" />
         <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/layout/activity_stats.xml" value="0.176" />
+        <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/layout/item.xml" value="0.11041666666666666" />
         <entry key="..\:/Users/ASUS PC/Documents/GitHub/SportsWatch/app/src/main/res/mipmap-anydpi-v26/BON.xml" value="0.117" />
         <entry key="app/src/main/res/drawable/svg_heart.xml" value="0.1" />
         <entry key="app/src/main/res/layout-v23/activity_heart_display.xml" value="0.19791666666666666" />

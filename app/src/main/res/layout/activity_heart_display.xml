@@ -7,6 +7,18 @@
     tools:context=".HeartDisplay">
 
     <Button
+        android:id="@+id/btnReset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.715"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.68" />
+
+    <Button
         android:id="@+id/btnBlue"
         style="@style/Widget.MaterialComponents.TimePicker.ImageButton"
         android:layout_width="wrap_content"
@@ -36,6 +48,17 @@
         app:layout_constraintTop_toBottomOf="@+id/chart"
         app:layout_constraintVertical_bias="0.381"
         tools:text="Calories Burned :" />
+
+    <Button
+        android:id="@+id/btnSTARTTIMER"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="104dp"
+        android:text="Start"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.68" />
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart"
