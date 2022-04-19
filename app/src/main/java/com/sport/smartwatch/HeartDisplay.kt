@@ -10,7 +10,6 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.os.*
 import android.util.Log
-import android.view.View.inflate
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -18,10 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.resources.Compatibility.Api21Impl.inflate
 import androidx.core.app.ActivityCompat
-import androidx.core.content.res.ColorStateListInflaterCompat.inflate
-import androidx.core.graphics.drawable.DrawableCompat.inflate
 import com.github.mikephil.charting.charts.LineChart
 import java.util.*
 import kotlin.collections.ArrayList
@@ -39,8 +35,6 @@ private const val SELECT_DEVICE_REQUEST_CODE = 0
 
 @RequiresApi(Build.VERSION_CODES.O)
 class HeartDisplay : AppCompatActivity() {
-
-
     // Bluetooth
     //private val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
     //private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
@@ -68,9 +62,7 @@ class HeartDisplay : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_heart_display)
-
 
         setupApp()
         checkPermission()
@@ -375,53 +367,50 @@ class HeartDisplay : AppCompatActivity() {
         return (somme / bpmList.size)
     }
     private fun time() : Float {
-        val StartPausebtn=findViewById<Button>(R.id.btnSTARTTIMER)
-        val Resetbtn=findViewById<Button>(R.id.btnReset)
+        val btnStartPause = findViewById<Button>(R.id.btnSTARTTIMER)
+        val btnReset = findViewById<Button>(R.id.btnReset)
 
-        StartPausebtn.setOnClickListener{
+        btnStartPause.setOnClickListener{
             startStopTimer()}
-        Resetbtn.setOnClickListener{
+        btnReset.setOnClickListener{
             resetTimer()
         }
 
-        serviceIntent = Intent(applicationContext, TimerService::class.java)
-        registerReceiver(updateTime, IntentFilter(TimerService.TIMER_UPDATED))
-
+        return 0.0F
     }
     private val updateTime: BroadcastReceiver= object : BroadcastReceiver(){
         override fun onReceive(context: Context, intent: Intent) {
-           time = intent.getDoubleExtra(TimerService.TIME_EXTRA,0.0)
-
-
-
-
+           val time = intent.getDoubleExtra(TimerService.TIME_EXTRA,0.0)
         }
     }
 
     private fun resetTimer(){
-        stopTimer()
-        time= 0.0
+        val serviceIntent = Intent(applicationContext, TimerService::class.java)
+        registerReceiver(updateTime, IntentFilter(TimerService.TIMER_UPDATED))
 
+        stopTimer(serviceIntent)
+        val time = 0.0
     }
 
-    private fun startStopTimer(){
-        if(timeStarted)
-            stopTimer()
+    private fun startStopTimer(timeStarted: Float = 0.0F){
+        val serviceIntent = Intent(applicationContext, TimerService::class.java)
+        registerReceiver(updateTime, IntentFilter(TimerService.TIMER_UPDATED))
+
+        if(timeStarted == 0.0F)
+            stopTimer(serviceIntent)
         else
-            startTimer()
-
+            startTimer(serviceIntent)
     }
 
-    private fun startTimer() {
-        serviceIntent.putExtra(TimerService.TIME_EXTRA,time)
+    private fun startTimer(serviceIntent: Intent) {
+        serviceIntent.putExtra(TimerService.TIME_EXTRA,time())
         startService(serviceIntent)
-        timerStarted = true
+        val timerStarted = true
     }
 
-    private fun stopTimer() {
-
+    private fun stopTimer(serviceIntent: Intent) {
         stopService(serviceIntent)
-        timerStarted = false
+        val timerStarted = false
     }
 
 
