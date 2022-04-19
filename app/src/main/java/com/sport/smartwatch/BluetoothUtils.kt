@@ -97,7 +97,7 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
     }
 
     /**
-     * TODO
+     * Initial connection state, start
      */
     @Synchronized
     open fun start() {
@@ -115,18 +115,12 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
             connectedThread = null
         }
 
-        // Start the thread to listen on a BluetoothServerSocket
-//        if (acceptThread == null) {
-//            acceptThread = AcceptThread()
-//            acceptThread!!.start()
-//        }
-
         // Update UI title
         updateUserInterfaceTitle()
     }
 
     /**
-     * TODO
+     * Final connection state, stop
      */
     @Synchronized
     open fun stop() {
@@ -369,7 +363,7 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
         override fun run() {
             Log.d(TAG, "begin ConnectedThread")
             var numBytes: Int // bytes returned from read()
-            val mmBuffer = ByteArray(1024) // mmBuffer store for the stream
+            val mmBuffer = ByteArray(2048) // mmBuffer store for the stream
             val readMessage: StringBuilder = StringBuilder()
 
             // Keep listening to the InputStream until an exception occurs.
@@ -380,7 +374,7 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
                     val read = String(mmBuffer, 0, numBytes)
                     readMessage.append(read)
 
-                    Log.d(TAG, "TIME: ${readMessage.toString()}")
+                    //Log.d(TAG, "TIME: ${readMessage.toString()}")
 
                     if (read.contains("\n", ignoreCase = true)) {
                         handler.obtainMessage(MESSAGE_READ, numBytes, -1, readMessage.toString())

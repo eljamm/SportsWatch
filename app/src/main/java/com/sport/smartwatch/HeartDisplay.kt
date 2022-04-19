@@ -26,18 +26,17 @@ import com.github.mikephil.charting.charts.LineChart
 private const val TAG = "SportsWatch"   // Used for debugging
 
 // Intent request codes
+private const val SELECT_DEVICE_REQUEST_CODE = 0
 private const val REQUEST_CONNECT_DEVICE = 0
 private const val REQUEST_PERMISSION = 1
 private const val REQUEST_ENABLE_BT = 2
 
-//
-private const val SELECT_DEVICE_REQUEST_CODE = 0
-
 @RequiresApi(Build.VERSION_CODES.O)
 class HeartDisplay : AppCompatActivity() {
+    /**
+     * Attributes Declaration
+     */
     // Bluetooth
-    //private val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
-    //private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
     private lateinit var btUtils: BluetoothUtils
 
     // Chart
@@ -55,16 +54,22 @@ class HeartDisplay : AppCompatActivity() {
     private var gender = "Male"
 
     // Views
-    private lateinit var lineChart: LineChart
     private lateinit var txtCalories: TextView
+    private lateinit var lineChart: LineChart
     private lateinit var txtBPM: TextView
     private lateinit var btnBlue: Button
 
+    /**
+     * When the activity is created
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart_display)
 
+        // Initialize essential attributes
         setupApp()
+
+        // Check bluetooth permission
         checkPermission()
 
         // Get extras from MainActivity
@@ -84,17 +89,16 @@ class HeartDisplay : AppCompatActivity() {
 
             // Connect to paired devices
             connectDevice()
-
-            if (btUtils.adapter?.bondedDevices!!.isNotEmpty()) {
-                // Set activity resources
-                btnBlue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bluetooth_connected, 0, 0, 0)
-            }
         }
     }
 
+    /**
+     * When the app is resumed in the foreground
+     */
     override fun onResume() {
         super.onResume()
 
+        // Cancel all running threads
         try {
             if (btUtils.getState() == STATE_NONE) {
                 btUtils.start()
@@ -104,13 +108,18 @@ class HeartDisplay : AppCompatActivity() {
         }
     }
 
+    /**
+     * Before the activity is destroyed
+     */
     override fun onDestroy() {
         super.onDestroy()
+
+        // Cancel all running threads
         btUtils.stop()
     }
 
     /**
-     * TODO
+     * Process thread messages and execute actions
      */
     private val handler: Handler = object : Handler(Looper.myLooper()!!) {
         override fun handleMessage(msg: Message) {
@@ -119,44 +128,66 @@ class HeartDisplay : AppCompatActivity() {
                     STATE_CONNECTED -> {
                         Log.d(TAG, "handleMessage: STATE_CONNECTED to $connectedDeviceName")
                         btnBlue.text = "Connected"
+                        btnBlue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bluetooth_connected,
+                            0, 0, 0)
                     }
                     STATE_CONNECTING -> {
                         Log.d(TAG, "handleMessage: STATE_CONNECTING to $connectedDeviceName")
                         btnBlue.text = "Connecting"
+                        btnBlue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bluetooth_connecting,
+                            0, 0, 0)
                     }
                     STATE_LISTEN, STATE_NONE -> {
                         Log.d(TAG, "handleMessage: STATE_LISTEN, STATE_NONE")
                         btnBlue.text = "Connect"
-                        btnBlue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bluetooth_disabled, 0, 0, 0)
+                        btnBlue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bluetooth_disabled,
+                            0, 0, 0)
                     }
                 }
                 MESSAGE_WRITE -> {
+                    // Receive bytes
                     val writeBuf = msg.obj as ByteArray
-                    // construct a string from the buffer
+
+                    // Convert buffer into a String
                     val writeMessage = String(writeBuf)
+
+                    // Log the data
                     Log.d(TAG, "MESSAGE_WRITE: $writeMessage")
                 }
                 MESSAGE_READ -> {
+                    // Receive message String
                     var message: String = msg.obj as String
-                    message = message.replace("\r", "").replace("\n", "")
+
+                    // Remove newline escape characters from the message
+                    message = message
+                        .replace("\r", "")
+                        .replace("\n", "")
+
                     Log.d(TAG, "Read: $message")
 
+                    // Filter the received message
                     try {
+                        // Chart data begins with an "*"
                         if (message.contains("*")) {
                             val chartValues = message.split("*")
                             for (value in chartValues) {
-                                if (value.isNotEmpty() && !value.contains(".", ignoreCase = true)) {
+                                if (value.isNotEmpty() && !value.contains(".")) {
+                                    // Add the value to the chart
                                     chart.add(value.toInt())
                                 }
                             }
-                        } else if (message.contains("#")){
-                            val txtBPM: TextView = this@HeartDisplay.findViewById(R.id.txtBPM)
+                        }
+
+                        // BPM data begins with a "#"
+                        else if (message.contains("#")){
+                            // Display the value of the BPM
                             txtBPM.text = message.split("#")[1]
                         }
                     } catch (e: Exception) {
-                        Log.e(TAG, "handleMessage: Stopped", e)
+                        Log.e(TAG, "handleMessage: data was badly processed", e)
                     }
 
+                    // TODO
                     //val calories = calculateCal(age, weight, gender, message.toFloat())
                     //txtCalories.text = "Calories Burned: $calories"
                 }
@@ -166,18 +197,17 @@ class HeartDisplay : AppCompatActivity() {
                     Toast.makeText(this@HeartDisplay, "Connected to "
                             + connectedDeviceName, Toast.LENGTH_SHORT).show()
                 }
-                MESSAGE_TOAST -> Toast.makeText(this@HeartDisplay, msg.data.getString(TOAST),
-                    Toast.LENGTH_SHORT).show()
+                MESSAGE_TOAST -> {
+                    // Display a Toast
+                    Toast.makeText(this@HeartDisplay, msg.data.getString(TOAST),
+                        Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
-    fun String.floatToInt(): Int {
-        return this.toFloat().toInt()
-    }
-
     /**
-     * TODO
+     * Initialize defined attributes
      */
     private fun setupApp() {
         Log.d(TAG, "setupApp()")
@@ -194,13 +224,14 @@ class HeartDisplay : AppCompatActivity() {
         lineChart = findViewById(R.id.chart)
         chart = chUtils.Chart(lineChart)
 
+        // Views
         txtBPM = findViewById(R.id.txtBPM)
         txtCalories = findViewById(R.id.txtCalories)
         btnBlue = findViewById(R.id.btnBlue)
     }
 
     /**
-     * Check bluetooth status and ask the user to enable it if it's disabled
+     * Enable bluetooth if it's disabled
      */
     private fun enableBluetooth() {
         Log.d(TAG, "enableBluetooth()")
@@ -223,7 +254,7 @@ class HeartDisplay : AppCompatActivity() {
     }
 
     /**
-     * Find bluetooth devices and pair with them then start a connection
+     * Find bluetooth devices and pair with them
      */
     private fun findDevices() {
         if (btUtils.adapter?.isEnabled == true) {
@@ -231,17 +262,17 @@ class HeartDisplay : AppCompatActivity() {
 
             // If there is no bonded device look for devices to pair with
             if (btUtils.adapter?.bondedDevices!!.isEmpty()) {
-                // Sets filters based on names and supported feature flags (UUIDs)
+                // Set filters based on names and supported feature flags (UUIDs).
+                // We can use this to only search for specific devices.
                 val deviceFilter: BluetoothDeviceFilter = BluetoothDeviceFilter.Builder()
                     //.setNamePattern(Pattern.compile("SportsWatch"))
                     //.addServiceUuid(ParcelUuid(UUID(0x123abcL, -1L)), null)
                     .build()
 
-                // The argument provided in setSingleDevice() determines whether a single
-                // device name or a list of them appears.
+                // Send a pairing request using the specified filter
                 val pairingRequest: AssociationRequest = AssociationRequest.Builder()
                     .addDeviceFilter(deviceFilter)
-                    .setSingleDevice(false)  // false: a list of devices appears
+                    .setSingleDevice(false)  // false: a list of devices, true: only one device
                     .build()
 
                 // When the app tries to pair with a Bluetooth device, show the
@@ -249,6 +280,7 @@ class HeartDisplay : AppCompatActivity() {
                 btUtils.manager.associate(pairingRequest,
                     object : CompanionDeviceManager.Callback() {
                         override fun onDeviceFound(chooserLauncher: IntentSender) {
+                            // TODO
                             startIntentSenderForResult(chooserLauncher,
                                 SELECT_DEVICE_REQUEST_CODE, null, 0, 0, 0)
                         }
@@ -267,9 +299,10 @@ class HeartDisplay : AppCompatActivity() {
     private fun connectDevice() {
         checkPermission()
 
-        // Get paired devices
+        // Get the list of paired devices
         val pairedDevices: Set<BluetoothDevice>? = btUtils.adapter?.bondedDevices
 
+        // If the list is not empty, try to connect to each device
         if (pairedDevices!!.isNotEmpty()) {
             pairedDevices.forEach { device ->
                 val deviceName = device.name
@@ -308,7 +341,7 @@ class HeartDisplay : AppCompatActivity() {
     }
 
     /**
-     * Check bluetooth permissions
+     * Check bluetooth permission status and enable it if's disabled
      */
     private fun checkPermission() {
         // If Bluetooth permissions are not granted
@@ -406,5 +439,9 @@ class HeartDisplay : AppCompatActivity() {
                 Log.d(TAG, "${it.key} = ${it.value}")
             }
         }
+
+    fun String.floatToInt(): Int {
+        return this.toFloat().toInt()
+    }
 }
 
