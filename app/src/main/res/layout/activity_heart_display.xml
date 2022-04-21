@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".HeartDisplay">
 
+    <TextView
+        android:id="@+id/StopWatch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00:00"
+        android:textSize="48sp"
+        app:layout_constraintBottom_toTopOf="@+id/txtCalories"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout2" />
+
     <Button
         android:id="@+id/btnReset"
         android:layout_width="wrap_content"
@@ -13,10 +24,8 @@
         android:text="Reset"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.715"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.68" />
+        app:layout_constraintStart_toEndOf="@+id/btnSTARTTIMER"
+        app:layout_constraintTop_toBottomOf="@+id/txtCalories" />
 
     <Button
         android:id="@+id/btnBlue"
@@ -40,36 +49,24 @@
         android:id="@+id/txtCalories"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="160dp"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chart"
-        app:layout_constraintVertical_bias="0.381"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout2"
+        app:layout_constraintVertical_bias="0.634"
         tools:text="Calories Burned :" />
 
     <Button
         android:id="@+id/btnSTARTTIMER"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="104dp"
+        android:layout_marginStart="92dp"
         android:text="Start"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.68" />
-
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/chart"
-        android:layout_width="300dp"
-        android:layout_height="200dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayout2">
-
-    </com.github.mikephil.charting.charts.LineChart>
+        app:layout_constraintTop_toBottomOf="@+id/txtCalories" />
 
     <FrameLayout
         android:id="@+id/frameLayout2"

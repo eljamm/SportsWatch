@@ -25,6 +25,7 @@ import androidx.core.graphics.drawable.DrawableCompat.inflate
 import com.github.mikephil.charting.charts.LineChart
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.roundToInt
 
 
 private const val TAG = "SportsWatch"   // Used for debugging
@@ -40,15 +41,23 @@ private const val SELECT_DEVICE_REQUEST_CODE = 0
 @RequiresApi(Build.VERSION_CODES.O)
 class HeartDisplay : AppCompatActivity() {
 
+    //time variables
+    private var timerStarted=false
+    private lateinit var serviceIntent:Intent
+    private var time=0.0
+    var stpwtch=findViewById<TextView>(R.id.StopWatch)
+    val StartPausebtn=findViewById<Button>(R.id.btnSTARTTIMER)
+    val Resetbtn=findViewById<Button>(R.id.btnReset)
+
+
+
 
     // Bluetooth
     //private val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
     //private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
     private lateinit var btUtils: BluetoothUtils
 
-    // Chart
-    private lateinit var chUtils: ChartUtils
-    private lateinit var chart: ChartUtils.Chart
+
 
     // Device
     private var connectedDeviceName = ""
@@ -71,8 +80,11 @@ class HeartDisplay : AppCompatActivity() {
 
         setContentView(R.layout.activity_heart_display)
 
+        serviceIntent=Intent(applicationContext,TimerService::class.java)
 
-        setupApp()
+
+
+
         checkPermission()
 
         // Get extras from MainActivity
@@ -153,9 +165,7 @@ class HeartDisplay : AppCompatActivity() {
                         if (message.contains("*")) {
                             val chartValues = message.split("*")
                             for (value in chartValues) {
-                                if (value.isNotEmpty() && !value.contains(".", ignoreCase = true)) {
-                                    chart.add(value.toInt())
-                                }
+
                             }
                         } else if (message.contains("#")){
                             val txtBPM: TextView = this@HeartDisplay.findViewById(R.id.txtBPM)
@@ -187,25 +197,7 @@ class HeartDisplay : AppCompatActivity() {
     /**
      * TODO
      */
-    private fun setupApp() {
-        Log.d(TAG, "setupApp()")
 
-        // Bluetooth
-        btUtils = BluetoothUtils(this@HeartDisplay, handler)
-
-        // buffer for outgoing messages
-        mOutStringBuffer = StringBuffer()
-
-        // Chart
-        chUtils = ChartUtils()
-
-        lineChart = findViewById(R.id.chart)
-        chart = chUtils.Chart(lineChart)
-
-        txtBPM = findViewById(R.id.txtBPM)
-        txtCalories = findViewById(R.id.txtCalories)
-        btnBlue = findViewById(R.id.btnBlue)
-    }
 
     /**
      * Check bluetooth status and ask the user to enable it if it's disabled
@@ -374,9 +366,8 @@ class HeartDisplay : AppCompatActivity() {
 
         return (somme / bpmList.size)
     }
-    private fun time() : Float {
-        val StartPausebtn=findViewById<Button>(R.id.btnSTARTTIMER)
-        val Resetbtn=findViewById<Button>(R.id.btnReset)
+    private fun time() {
+
 
         StartPausebtn.setOnClickListener{
             startStopTimer()}
@@ -391,21 +382,39 @@ class HeartDisplay : AppCompatActivity() {
     private val updateTime: BroadcastReceiver= object : BroadcastReceiver(){
         override fun onReceive(context: Context, intent: Intent) {
            time = intent.getDoubleExtra(TimerService.TIME_EXTRA,0.0)
-
+           stpwtch.setText(getTimeStringFromDouble(time))
 
 
 
         }
     }
 
+    private fun getTimeStringFromDouble(time: Double): String{
+
+        val resultInt=time.roundToInt()
+        val hours = resultInt % 86400 / 3600
+        val minutes = resultInt % 86400 % 3600 /60
+        val seconds = resultInt % 86400 % 3600 %60
+        return makeTimeString(hours,minutes,seconds)
+
+    }
+
+    private fun makeTimeString(hour: Int, min: Int, sec: Int): String = String.format("%02d:%02d:%02d", hour,min,sec)
+
+
+
+
+
     private fun resetTimer(){
         stopTimer()
         time= 0.0
+        stpwtch.setText(getTimeStringFromDouble(time))
+
 
     }
 
     private fun startStopTimer(){
-        if(timeStarted)
+        if(timerStarted)
             stopTimer()
         else
             startTimer()
@@ -416,12 +425,16 @@ class HeartDisplay : AppCompatActivity() {
         serviceIntent.putExtra(TimerService.TIME_EXTRA,time)
         startService(serviceIntent)
         timerStarted = true
+        StartPausebtn.setText("Pause")
+
     }
 
     private fun stopTimer() {
 
         stopService(serviceIntent)
         timerStarted = false
+        StartPausebtn.setText("Start")
+
     }
 
 
@@ -435,7 +448,7 @@ class HeartDisplay : AppCompatActivity() {
             }
             REQUEST_ENABLE_BT -> {
                 if (requestCode == Activity.RESULT_OK) {
-                    setupApp()
+                    //setupApp()
                 } else {
                     // User did not enable Bluetooth or an error occurred
                     Log.d(TAG, "BT not enabled")
