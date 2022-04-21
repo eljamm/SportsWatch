@@ -417,6 +417,7 @@ class HeartDisplay : AppCompatActivity() {
         override fun onReceive(context: Context, intent: Intent) {
            time = intent.getDoubleExtra(TimerService.TIME_EXTRA,0.0)
            stpwtch.setText(getTimeStringFromDouble(time))
+            Log.d(TAG, getTimeStringFromDouble(time))
 
 
 
@@ -429,16 +430,18 @@ class HeartDisplay : AppCompatActivity() {
         val minutes = resultInt % 86400 % 3600 /60
         val seconds = resultInt % 86400 % 3600 %60
         if (resultInt<=99){
-            val milliseconds = resultInt % 86400
+            val milliseconds = seconds*1000
             return makeTimeString(minutes,seconds,milliseconds)
         }
         else {
-            val milliseconds= resultInt % 86400 -100
-            return makeTimeString(minutes,seconds,milliseconds)}
+            val milliseconds= 0
+            return makeTimeString(minutes,seconds,milliseconds)
+            }
 
     }
 
     private fun makeTimeString(min: Int, sec: Int, mil: Int): String = String.format("%02d:%02d:%02d", min,sec,mil)
+
 
 
 
