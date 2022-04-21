@@ -429,11 +429,11 @@ class HeartDisplay : AppCompatActivity() {
         val minutes = resultInt % 86400 % 3600 /60
         val seconds = resultInt % 86400 % 3600 %60
         if (resultInt<=99){
-            val milliseconds = resultInt
+            val milliseconds = resultInt % 86400
             return makeTimeString(minutes,seconds,milliseconds)
         }
         else {
-            val milliseconds= resultInt -100
+            val milliseconds= resultInt % 86400 -100
             return makeTimeString(minutes,seconds,milliseconds)}
 
     }
