@@ -76,12 +76,17 @@ class HeartDisplay : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart_display)
+        var stpwtch=findViewById<TextView>(R.id.StopWatch)
+        val StartPausebtn=findViewById<Button>(R.id.btnSTARTTIMER)
+        val Resetbtn=findViewById<Button>(R.id.btnReset)
 
         // Initialize essential attributes
         setupApp()
 
         // Check bluetooth permission
         checkPermission()
+        //call time function for stopwatch
+        time()
 
         // Get extras from MainActivity
         val extras = intent.extras
@@ -421,14 +426,19 @@ class HeartDisplay : AppCompatActivity() {
     private fun getTimeStringFromDouble(time: Double): String{
 
         val resultInt=time.roundToInt()
-        val hours = resultInt % 86400 / 3600
         val minutes = resultInt % 86400 % 3600 /60
         val seconds = resultInt % 86400 % 3600 %60
-        return makeTimeString(hours,minutes,seconds)
+        if (resultInt<=99){
+            val milliseconds = resultInt
+            return makeTimeString(minutes,seconds,milliseconds)
+        }
+        else {
+            val milliseconds= resultInt -100
+            return makeTimeString(minutes,seconds,milliseconds)}
 
     }
 
-    private fun makeTimeString(hour: Int, min: Int, sec: Int): String = String.format("%02d:%02d:%02d", hour,min,sec)
+    private fun makeTimeString(min: Int, sec: Int, mil: Int): String = String.format("%02d:%02d:%02d", min,sec,mil)
 
 
 
