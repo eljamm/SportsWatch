@@ -64,9 +64,11 @@ class HeartDisplay : AppCompatActivity() {
     private var timerStarted=false
     private lateinit var serviceIntent:Intent
     private var time=0.0
-    var stpwtch=findViewById<TextView>(R.id.StopWatch)
-    val StartPausebtn=findViewById<Button>(R.id.btnSTARTTIMER)
-    val Resetbtn=findViewById<Button>(R.id.btnReset)
+
+    //
+    private lateinit var stpwtch: TextView
+    private lateinit var StartPausebtn: Button
+    private lateinit var Resetbtn: Button
 
     /**
      * When the activity is created
@@ -220,6 +222,10 @@ class HeartDisplay : AppCompatActivity() {
         txtBPM = findViewById(R.id.txtBPM)
         txtCalories = findViewById(R.id.txtCalories)
         btnBlue = findViewById(R.id.btnBlue)
+
+        stpwtch = findViewById(R.id.StopWatch)
+        StartPausebtn = findViewById(R.id.btnSTARTTIMER)
+        Resetbtn = findViewById(R.id.btnReset)
     }
 
     /**
