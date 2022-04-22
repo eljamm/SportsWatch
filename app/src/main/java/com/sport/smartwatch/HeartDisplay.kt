@@ -18,9 +18,11 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.github.mikephil.charting.charts.LineChart
 import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
+import android.os.Bundle
+import android.os.Handler
+import android.view.View
 
 
 private const val TAG = "SportsWatch"   // Used for debugging
@@ -61,14 +63,27 @@ class HeartDisplay : AppCompatActivity() {
     private lateinit var btnBlue: Button
 
     // Time variables
-    private var timerStarted=false
+    /*private var timerStarted=false
     private lateinit var serviceIntent:Intent
     private var time=0.0
 
     //
     private lateinit var stpwtch: TextView
     private lateinit var StartPausebtn: Button
-    private lateinit var Resetbtn: Button
+    private lateinit var Resetbtn: Button*/
+    //timer variables for timerv2
+    var timer: TextView? = null
+    var start: Button? = null
+    var pause: Button? = null
+    var reset: Button? = null
+    var MillisecondTime: Long = 0
+    var StartTime: Long = 0
+    var TimeBuff: Long = 0
+    var UpdateTime = 0L
+    var handlert: Handler? = null
+    var Seconds = 0
+    var Minutes = 0
+    var MilliSeconds = 0
 
     /**
      * When the activity is created
@@ -76,9 +91,39 @@ class HeartDisplay : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart_display)
-        var stpwtch=findViewById<TextView>(R.id.StopWatch)
+       /* var stpwtch=findViewById<TextView>(R.id.StopWatch)
         val StartPausebtn=findViewById<Button>(R.id.btnSTARTTIMER)
-        val Resetbtn=findViewById<Button>(R.id.btnReset)
+        val Resetbtn=findViewById<Button>(R.id.btnReset)*/
+
+        //timer2
+        /////////////////////////////////////////////////////////////
+        timer = findViewById<View>(R.id.StopWatch) as TextView
+        start = findViewById<View>(R.id.btnStart) as Button
+        pause = findViewById<View>(R.id.btnPause) as Button
+        reset = findViewById<View>(R.id.btnReset) as Button
+        handlert = Handler()
+        start!!.setOnClickListener {
+            StartTime = SystemClock.uptimeMillis()
+            handlert!!.postDelayed(runnable, 0)
+            reset!!.isEnabled = false
+        }
+        pause!!.setOnClickListener {
+            TimeBuff += MillisecondTime
+            handlert!!.removeCallbacks(runnable)
+            reset!!.isEnabled = true
+        }
+        reset!!.setOnClickListener {
+            MillisecondTime = 0L
+            StartTime = 0L
+            TimeBuff = 0L
+            UpdateTime = 0L
+            Seconds = 0
+            Minutes = 0
+            MilliSeconds = 0
+            timer!!.text = "00:00:00"
+        }
+////////////////////////////////////////////////////////////////////////
+
 
         // Initialize essential attributes
         setupApp()
@@ -86,7 +131,7 @@ class HeartDisplay : AppCompatActivity() {
         // Check bluetooth permission
         checkPermission()
         //call time function for stopwatch
-        time()
+        //time()
 
         // Get extras from MainActivity
         val extras = intent.extras
@@ -107,7 +152,7 @@ class HeartDisplay : AppCompatActivity() {
             connectDevice()
         }
 
-        serviceIntent = Intent(applicationContext,TimerService::class.java)
+        //serviceIntent = Intent(applicationContext,TimerService::class.java)
     }
 
     /**
@@ -228,9 +273,9 @@ class HeartDisplay : AppCompatActivity() {
         txtCalories = findViewById(R.id.txtCalories)
         btnBlue = findViewById(R.id.btnBlue)
 
-        stpwtch = findViewById(R.id.StopWatch)
-        StartPausebtn = findViewById(R.id.btnSTARTTIMER)
-        Resetbtn = findViewById(R.id.btnReset)
+       /* stpwtch = findViewById(R.id.StopWatch)
+        StartPausebtn = findViewById(R.id.btnStart)
+        Resetbtn = findViewById(R.id.btnReset)*/
     }
 
     /**
@@ -400,12 +445,12 @@ class HeartDisplay : AppCompatActivity() {
 
         return (somme / bpmList.size)
     }
-    private fun time() {
+    /*private fun time() {
 
 
-        StartPausebtn.setOnClickListener{
+        StartPausebtn!!.setOnClickListener{
             startStopTimer()}
-        Resetbtn.setOnClickListener{
+        Resetbtn!!.setOnClickListener{
             resetTimer()
         }
 
@@ -427,16 +472,10 @@ class HeartDisplay : AppCompatActivity() {
     private fun getTimeStringFromDouble(time: Double): String{
 
         val resultInt=time.roundToInt()
+        val hours = resultInt % 86400 / 3600
         val minutes = resultInt % 86400 % 3600 /60
         val seconds = resultInt % 86400 % 3600 %60
-        if (resultInt<=99){
-            val milliseconds = seconds*1000
-            return makeTimeString(minutes,seconds,milliseconds)
-        }
-        else {
-            val milliseconds= 0
-            return makeTimeString(minutes,seconds,milliseconds)
-            }
+        return makeTimeString(hours,minutes,seconds)
 
     }
 
@@ -477,7 +516,7 @@ class HeartDisplay : AppCompatActivity() {
         timerStarted = false
         StartPausebtn.setText("Start")
 
-    }
+    }*/
 
 
     internal fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -519,5 +558,19 @@ class HeartDisplay : AppCompatActivity() {
                 Log.d(TAG, "${it.key} = ${it.value}")
             }
         }
+    var runnable: Runnable = object : Runnable {
+        override fun run() {
+            MillisecondTime = SystemClock.uptimeMillis() - StartTime
+            UpdateTime = TimeBuff + MillisecondTime
+            Seconds = (UpdateTime / 1000).toInt()
+            Minutes = Seconds / 60
+            Seconds = Seconds % 60
+            MilliSeconds = (UpdateTime % 1000).toInt()
+            timer!!.text = ("" + Minutes + ":"
+                    + String.format("%02d", Seconds) + ":"
+                    + String.format("%02d", (MilliSeconds/10).toLong()))
+            handlert!!.postDelayed(this, 0)
+        }
+    }
 }
 
