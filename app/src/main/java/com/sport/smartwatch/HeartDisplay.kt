@@ -99,19 +99,23 @@ class HeartDisplay : AppCompatActivity() {
         /////////////////////////////////////////////////////////////
         timer = findViewById<View>(R.id.StopWatch) as TextView
         start = findViewById<View>(R.id.btnStart) as Button
-        pause = findViewById<View>(R.id.btnPause) as Button
+
         reset = findViewById<View>(R.id.btnReset) as Button
         handlert = Handler()
         start!!.setOnClickListener {
+            if(start!!.text.toString()=="Start"){
             StartTime = SystemClock.uptimeMillis()
             handlert!!.postDelayed(runnable, 0)
             reset!!.isEnabled = false
+            start!!.setText("Pause")}
+            else if(start!!.text.toString()=="Pause"){
+                TimeBuff += MillisecondTime
+                handlert!!.removeCallbacks(runnable)
+                reset!!.isEnabled = true
+                start!!.setText("Start")
+            }
         }
-        pause!!.setOnClickListener {
-            TimeBuff += MillisecondTime
-            handlert!!.removeCallbacks(runnable)
-            reset!!.isEnabled = true
-        }
+
         reset!!.setOnClickListener {
             MillisecondTime = 0L
             StartTime = 0L
