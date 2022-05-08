@@ -8,6 +8,7 @@ import android.companion.BluetoothDeviceFilter
 import android.companion.CompanionDeviceManager
 import android.content.*
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.*
 import android.util.Log
 import android.widget.Button
@@ -23,6 +24,7 @@ import kotlin.math.roundToInt
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
+import android.widget.ImageView
 
 
 private const val TAG = "SportsWatch"   // Used for debugging
@@ -61,6 +63,7 @@ class HeartDisplay : AppCompatActivity() {
     private lateinit var txtCalories: TextView
     private lateinit var txtBPM: TextView
     private lateinit var btnBlue: Button
+    private lateinit var heartImage:ImageView
 
     // Time variables
     /*private var timerStarted=false
@@ -99,6 +102,7 @@ class HeartDisplay : AppCompatActivity() {
         /////////////////////////////////////////////////////////////
         timer = findViewById<View>(R.id.StopWatch) as TextView
         start = findViewById<View>(R.id.btnStart) as Button
+        heartImage = findViewById(R.id.imgHeart) as ImageView
 
         reset = findViewById<View>(R.id.btnReset) as Button
         handlert = Handler()
@@ -144,6 +148,8 @@ class HeartDisplay : AppCompatActivity() {
             age = extras.getFloat("age")
             gender = extras.getString("gender")!!
         }
+
+
 
         btnBlue.setOnClickListener {
             // Enable bluetooth if it's disabled
@@ -233,6 +239,22 @@ class HeartDisplay : AppCompatActivity() {
                     Log.d(TAG, "Read: $message")
 
                     txtBPM.text = message
+                    ////MAX BPM SEGMENT
+                    //////////////////////////////////////////////////////////////////////////////////
+                    //Set MAX BPM
+                    if (age!=null){
+                    var maxBPM=222-age
+                    // If bpm>>max bpm
+                    if(txtBPM.text.toString().toInt()>=maxBPM){
+                        heartImage.setImageResource(R.drawable.blackheart)
+                        txtBPM.setTextColor(Color.RED)
+                        val toast = Toast.makeText(applicationContext,"WARNING :Max BPM Reached,slowing down or stopping the exercice is advised",Toast.LENGTH_SHORT).show() }
+                    //if bpm <<max bpm
+                    else if (txtBPM.text.toString().toInt()<maxBPM){
+                        heartImage.setImageResource(R.drawable.svg_heart)
+                        txtBPM.setTextColor(Color.WHITE)
+                    }}
+                    /////////////////////////////////////////////////////////////////////////////////////
 
                     if (firstBPM == false) {
                         beginExercice = System.currentTimeMillis()
