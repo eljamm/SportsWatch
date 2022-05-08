@@ -592,9 +592,17 @@ class HeartDisplay : AppCompatActivity() {
             Minutes = Seconds / 60
             Seconds = Seconds % 60
             MilliSeconds = (UpdateTime % 1000).toInt()
+            if (Minutes>9){
             timer!!.text = ("" + Minutes + ":"
                     + String.format("%02d", Seconds) + ":"
                     + String.format("%02d", (MilliSeconds/10).toLong()))
+            }
+            else if(Minutes<9){
+                timer!!.text = ("0" + Minutes + ":"
+                        + String.format("%02d", Seconds) + ":"
+                        + String.format("%02d", (MilliSeconds/10).toLong()))
+
+            }
             handlert!!.postDelayed(this, 0)
         }
     }
