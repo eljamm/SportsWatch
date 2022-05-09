@@ -63,7 +63,11 @@ class HeartDisplay : AppCompatActivity() {
     private lateinit var txtCalories: TextView
     private lateinit var txtBPM: TextView
     private lateinit var btnBlue: Button
-    private lateinit var heartImage:ImageView
+    private lateinit var heartImage: ImageView
+    private lateinit var txtTimer: TextView
+    private lateinit var btnStart: Button
+    private lateinit var btnPause: Button
+    private lateinit var btnReset: Button
 
     // Time variables
     /*private var timerStarted=false
