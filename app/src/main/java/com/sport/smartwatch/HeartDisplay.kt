@@ -6,12 +6,14 @@ import android.bluetooth.BluetoothDevice
 import android.companion.AssociationRequest
 import android.companion.BluetoothDeviceFilter
 import android.companion.CompanionDeviceManager
-import android.content.*
+import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.*
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,9 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import android.os.Bundle
-import android.os.Handler
-import android.widget.ImageView
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 
@@ -46,6 +46,7 @@ class HeartDisplay : AppCompatActivity() {
     private lateinit var mOutStringBuffer: StringBuffer
 
     // Calorie Calculation
+    private val bpmList = ArrayList<Float>(30)
     private var weight = 0.0F
     private var age: Int = 0
     private var gender = "Male"
@@ -79,6 +80,14 @@ class HeartDisplay : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart_display)
 
+        // Get extras from MainActivity
+        val extras = this@HeartDisplay.intent.extras
+        if (extras != null) {
+            weight = extras.getFloat("weight")
+            age = extras.getInt("age")
+            gender = extras.getString("gender")!!
+        }
+
         // Initialize essential attributes
         setupApp()
 
@@ -87,14 +96,6 @@ class HeartDisplay : AppCompatActivity() {
 
         //call time function for stopwatch
         //time()
-
-        // Get extras from MainActivity
-        val extras = intent.extras
-        if (extras != null) {
-            weight = extras.getFloat("weight")
-            age = extras.getInt("age")
-            gender = extras.getString("gender")!!
-        }
 
         btnBlue.setOnClickListener {
             // Enable bluetooth if it's disabled
@@ -202,7 +203,7 @@ class HeartDisplay : AppCompatActivity() {
                             txtBPM.text = bpm
 
                             // Check Max BPM
-                            val maxBPM: Int = 222-age
+                            val maxBPM: Int = (222-age) * 65 / 100
                             val currentBPM = bpm.toFloat().roundToInt()
 
                             checkMaxBPM(currentBPM, maxBPM)
@@ -211,11 +212,17 @@ class HeartDisplay : AppCompatActivity() {
                             if (startCalc) {
                                 if (btnTimer.text == "Pause") {
                                     val currentTime = System.currentTimeMillis()
-                                    val duration: Long = currentTime - beginExercise
-                                    val floatBPM = bpm.toFloat()
+                                    Log.d(TAG, "beginExercise: $beginExercise" +
+                                            " | currentTime: $currentTime")
+                                    // Convert milliseconds to minutes
+                                    //val duration: Long = TimeUnit.MILLISECONDS.toMinutes(currentTime - beginExercise)
+                                    val duration: Float = (currentTime - beginExercise).toFloat().div(60000)
+                                    val floatBPM = calculateAverage(bpm.toFloat())
 
                                     val calories = calculateCal(age, weight, gender, floatBPM, duration)
                                     txtCalories.text = getString(R.string.calories_burned, calories)
+                                    Log.d(TAG, "duration: $duration | floatBPM: $floatBPM" +
+                                            " | calories: $calories")
                                 }
                             }
                         }
@@ -448,15 +455,17 @@ class HeartDisplay : AppCompatActivity() {
 
     private fun calculateCal(
         age: Int = 0, weight: Float = 0.0F, gender: String = "Male",
-        bpm: Float = 0.0F, duration: Long): Float {
+        bpm: Float = 0.0F, duration: Float): Float {
         return when (gender) {
             "Female" -> {
-                val calories = duration*(0.4472*bpm-0.1263*weight+0.074*age-20.4022)/4.184
-                calories.toFloat()
+                val calories =
+                    abs(duration * ((0.4472*bpm) - (0.1263*weight) + (0.074*age) - 20.4022).div(4.184) )
+                "%.2f".format(calories).toFloat()
             }
             "Male" -> {
-                val calories = duration*(0.6309*bpm-0.1988*weight+0.2017*age-55.0969)/4.184
-                calories.toFloat()
+                val calories =
+                    abs(duration * ((0.6309*bpm) - (0.1988*weight) + (0.2017*age) - 55.0969).div(4.184))
+                "%.2f".format(calories).toFloat()
             }
             else -> {
                 0.0F
@@ -538,11 +547,21 @@ class HeartDisplay : AppCompatActivity() {
             // Warn the user
             Toast.makeText(applicationContext,"WARNING: Max BPM Reached, " +
                     "slowing down or stopping the exercise is advised."
-                , Toast.LENGTH_LONG).show()
+                , Toast.LENGTH_SHORT).show()
         } else {
             heartImage.setImageResource(R.drawable.svg_heart)
             txtBPM.setTextColor(Color.WHITE)
         }
+    }
+
+
+    private fun calculateAverage(bpm: Float): Float {
+        bpmList.add(bpm)
+
+        var somme = 0.0F
+        for (item in bpmList) somme += item
+
+        return (somme / bpmList.size)
     }
 }
 

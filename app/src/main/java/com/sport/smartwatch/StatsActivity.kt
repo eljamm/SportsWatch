@@ -46,7 +46,7 @@ class StatsActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG).show()
             } else {
                 val profile = Profile(name.text.toString(), weight.text.toString().toFloat(),
-                    age.text.toString().toFloat(), gender.text.toString())
+                    age.text.toString().toInt(), gender.text.toString())
 
                 profileList.add(profile)
                 saveData()

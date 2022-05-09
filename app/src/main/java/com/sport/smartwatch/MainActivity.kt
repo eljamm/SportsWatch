@@ -36,10 +36,10 @@ class MainActivity : AppCompatActivity() {
 
         listview.setOnItemClickListener { adapterView, view, i, l ->
             val intentHeart = Intent(this@MainActivity, HeartDisplay::class.java)
-            intent.putExtra("name", profileList[i].name)
-            intent.putExtra("weight", profileList[i].weight)
-            intent.putExtra("age", profileList[i].age)
-            intent.putExtra("gender", profileList[i].gender)
+            intentHeart.putExtra("name", profileList[i].name)
+            intentHeart.putExtra("weight", profileList[i].weight)
+            intentHeart.putExtra("age", profileList[i].age)
+            intentHeart.putExtra("gender", profileList[i].gender)
             startActivity(intentHeart)
         }
     }
