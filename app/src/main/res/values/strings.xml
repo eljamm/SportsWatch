@@ -6,15 +6,18 @@
     <string name="click_to_scan">click here to scan for nearby devices</string>
     <string name="bpm">BPM</string>
     <string name="add_profile">Add Profile</string>
-    <string name="calories_burned">Calories Burned : %1$s</string>
+    <string name="calories_burned">Burned: %1$f cal</string>
 
-    <!--  BluetoothChat -->
+    <!--  Bluetooth -->
     <string name="send">Send</string>
     <string name="not_connected">You are not connected to a device</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
     <string name="title_connecting">connecting…</string>
     <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
     <string name="title_not_connected">not connected</string>
+    <string name="connected">Connected</string>
+    <string name="connecting">Connecting</string>
+    <string name="connect">Connect</string>
 
     <!--  DeviceListActivity -->
     <string name="scanning">scanning for devices…</string>
@@ -29,4 +32,11 @@
     <string name="secure_connect">Connect a device - Secure</string>
     <string name="insecure_connect">Connect a device - Insecure</string>
     <string name="discoverable">Make discoverable</string>
+
+    <!-- Timer -->
+    <string name="time1">%1$s:%2$s:%3$s</string>
+    <string name="time2">0%1$s:%2$s:%3$s</string>
+    <string name="zero_timer">00:00:00</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
 </resources>

@@ -19,12 +19,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import kotlin.collections.ArrayList
-import kotlin.math.roundToInt
 import android.os.Bundle
 import android.os.Handler
-import android.view.View
 import android.widget.ImageView
+import kotlin.math.roundToInt
 
 
 private const val TAG = "SportsWatch"   // Used for debugging
@@ -43,21 +41,26 @@ class HeartDisplay : AppCompatActivity() {
     // Bluetooth
     private lateinit var btUtils: BluetoothUtils
 
-    // Chart
-    private lateinit var chUtils: ChartUtils
-    private lateinit var chart: ChartUtils.Chart
-
     // Device
     private var connectedDeviceName = ""
     private lateinit var mOutStringBuffer: StringBuffer
 
     // Calorie Calculation
-    private val bpmList = ArrayList<Float>()
     private var weight = 0.0F
     private var age = 0.0F
     private var gender = "Male"
-    private var firstBPM = false
-    private var beginExercice: Long = System.currentTimeMillis()
+    private var startCalc = false
+    private var beginExercise: Long = System.currentTimeMillis()
+
+    // Timer
+    var timeHandler = Handler(Looper.myLooper()!!)
+    var millisecondTime: Long = 0
+    var startTime: Long = 0
+    var timeBuff: Long = 0
+    var updateTime = 0L
+    var seconds = 0
+    var minutes = 0
+    var milliSeconds = 0
 
     // Views
     private lateinit var txtCalories: TextView
@@ -65,32 +68,9 @@ class HeartDisplay : AppCompatActivity() {
     private lateinit var btnBlue: Button
     private lateinit var heartImage: ImageView
     private lateinit var txtTimer: TextView
-    private lateinit var btnStart: Button
-    private lateinit var btnPause: Button
+    private lateinit var btnTimer: Button
     private lateinit var btnReset: Button
 
-    // Time variables
-    /*private var timerStarted=false
-    private lateinit var serviceIntent:Intent
-    private var time=0.0
-
-    //
-    private lateinit var stpwtch: TextView
-    private lateinit var StartPausebtn: Button
-    private lateinit var Resetbtn: Button*/
-    //timer variables for timerv2
-    var timer: TextView? = null
-    var start: Button? = null
-    var pause: Button? = null
-    var reset: Button? = null
-    var MillisecondTime: Long = 0
-    var StartTime: Long = 0
-    var TimeBuff: Long = 0
-    var UpdateTime = 0L
-    var handlert: Handler? = null
-    var Seconds = 0
-    var Minutes = 0
-    var MilliSeconds = 0
 
     /**
      * When the activity is created
@@ -98,50 +78,13 @@ class HeartDisplay : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart_display)
-       /* var stpwtch=findViewById<TextView>(R.id.StopWatch)
-        val StartPausebtn=findViewById<Button>(R.id.btnSTARTTIMER)
-        val Resetbtn=findViewById<Button>(R.id.btnReset)*/
-
-        //timer2
-        /////////////////////////////////////////////////////////////
-        timer = findViewById<View>(R.id.StopWatch) as TextView
-        start = findViewById<View>(R.id.btnStart) as Button
-        heartImage = findViewById(R.id.imgHeart) as ImageView
-
-        reset = findViewById<View>(R.id.btnReset) as Button
-        handlert = Handler()
-        start!!.setOnClickListener {
-            if(start!!.text.toString()=="Start"){
-            StartTime = SystemClock.uptimeMillis()
-            handlert!!.postDelayed(runnable, 0)
-            reset!!.isEnabled = false
-            start!!.setText("Pause")}
-            else if(start!!.text.toString()=="Pause"){
-                TimeBuff += MillisecondTime
-                handlert!!.removeCallbacks(runnable)
-                reset!!.isEnabled = true
-                start!!.setText("Start")
-            }
-        }
-
-        reset!!.setOnClickListener {
-            MillisecondTime = 0L
-            StartTime = 0L
-            TimeBuff = 0L
-            UpdateTime = 0L
-            Seconds = 0
-            Minutes = 0
-            MilliSeconds = 0
-            timer!!.text = "00:00:00"
-        }
-////////////////////////////////////////////////////////////////////////
-
 
         // Initialize essential attributes
         setupApp()
 
         // Check bluetooth permission
         checkPermission()
+
         //call time function for stopwatch
         //time()
 
@@ -152,8 +95,6 @@ class HeartDisplay : AppCompatActivity() {
             age = extras.getFloat("age")
             gender = extras.getString("gender")!!
         }
-
-
 
         btnBlue.setOnClickListener {
             // Enable bluetooth if it's disabled
@@ -168,6 +109,7 @@ class HeartDisplay : AppCompatActivity() {
 
         //serviceIntent = Intent(applicationContext,TimerService::class.java)
     }
+
 
     /**
      * When the app is resumed in the foreground
@@ -185,6 +127,7 @@ class HeartDisplay : AppCompatActivity() {
         }
     }
 
+
     /**
      * Before the activity is destroyed
      */
@@ -195,6 +138,7 @@ class HeartDisplay : AppCompatActivity() {
         btUtils.stop()
     }
 
+
     /**
      * Process thread messages and execute actions
      */
@@ -204,19 +148,19 @@ class HeartDisplay : AppCompatActivity() {
                 MESSAGE_STATE_CHANGE -> when (msg.arg1) {
                     STATE_CONNECTED -> {
                         Log.d(TAG, "handleMessage: STATE_CONNECTED to $connectedDeviceName")
-                        btnBlue.text = "Connected"
+                        btnBlue.text = getString(R.string.connected)
                         btnBlue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bluetooth_connected,
                             0, 0, 0)
                     }
                     STATE_CONNECTING -> {
                         Log.d(TAG, "handleMessage: STATE_CONNECTING to $connectedDeviceName")
-                        btnBlue.text = "Connecting"
+                        btnBlue.text = getString(R.string.connecting)
                         btnBlue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bluetooth_connecting,
                             0, 0, 0)
                     }
                     STATE_LISTEN, STATE_NONE -> {
                         Log.d(TAG, "handleMessage: STATE_LISTEN, STATE_NONE")
-                        btnBlue.text = "Connect"
+                        btnBlue.text = getString(R.string.connect)
                         btnBlue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bluetooth_disabled,
                             0, 0, 0)
                     }
@@ -286,11 +230,47 @@ class HeartDisplay : AppCompatActivity() {
         }
     }
 
+
     /**
      * Initialize defined attributes
      */
     private fun setupApp() {
         Log.d(TAG, "setupApp()")
+
+        // Timer
+        txtTimer = findViewById(R.id.StopWatch)
+        btnTimer = findViewById(R.id.btnStart)
+        btnReset = findViewById(R.id.btnReset)
+        heartImage = findViewById(R.id.imgHeart)
+
+        btnTimer.setOnClickListener {
+            if(btnTimer.text == "Start"){
+                startTime = SystemClock.uptimeMillis()
+                timeHandler.postDelayed(runnable, 0)
+                btnReset.isEnabled = false
+                btnTimer.text = getString(R.string.pause)
+
+                startCalc = true
+                beginExercise = System.currentTimeMillis()
+            } else if(btnTimer.text == "Pause"){
+                timeBuff += millisecondTime
+                timeHandler.removeCallbacks(runnable)
+                btnReset.isEnabled = true
+                btnTimer.text = getString(R.string.start)
+            }
+        }
+
+        btnReset.setOnClickListener {
+            millisecondTime = 0L
+            startTime = 0L
+            timeBuff = 0L
+            updateTime = 0L
+            seconds = 0
+            minutes = 0
+            milliSeconds = 0
+            txtTimer.text = getString(R.string.zero_timer)
+            startCalc = false
+        }
 
         // Bluetooth
         btUtils = BluetoothUtils(this@HeartDisplay, handler)
@@ -302,11 +282,8 @@ class HeartDisplay : AppCompatActivity() {
         txtBPM = findViewById(R.id.txtBPM)
         txtCalories = findViewById(R.id.txtCalories)
         btnBlue = findViewById(R.id.btnBlue)
-
-       /* stpwtch = findViewById(R.id.StopWatch)
-        StartPausebtn = findViewById(R.id.btnStart)
-        Resetbtn = findViewById(R.id.btnReset)*/
     }
+
 
     /**
      * Enable bluetooth if it's disabled
@@ -330,6 +307,7 @@ class HeartDisplay : AppCompatActivity() {
             requestBluetooth.launch(enableBtIntent)
         }
     }
+
 
     /**
      * Find bluetooth devices and pair with them
@@ -371,6 +349,7 @@ class HeartDisplay : AppCompatActivity() {
         }
     }
 
+
     /**
      * Connect with paired devices
      */
@@ -395,18 +374,19 @@ class HeartDisplay : AppCompatActivity() {
         }
     }
 
+
     /**
      * TODO
      */
     private fun sendMessage(message: String) {
         // Check that we're actually connected before trying anything
-        if (btUtils.getState() !== STATE_CONNECTED) {
+        if (btUtils.getState() != STATE_CONNECTED) {
             Toast.makeText(this@HeartDisplay, R.string.not_connected, Toast.LENGTH_SHORT).show()
             return
         }
 
         // Check that there's actually something to send
-        if (message.length > 0) {
+        if (message.isNotEmpty()) {
             // Get the message bytes and tell the BluetoothChatService to write
             val send = message.toByteArray()
             btUtils.write(send)
@@ -417,6 +397,7 @@ class HeartDisplay : AppCompatActivity() {
             Log.d(TAG, "sendMessage: $mOutStringBuffer")
         }
     }
+
 
     /**
      * Check bluetooth permission status and enable it if's disabled
@@ -434,22 +415,27 @@ class HeartDisplay : AppCompatActivity() {
                     .setTitle("Permission Needed")
                     .setMessage("Bluetooth permission is needed to connect to devices.")
                     .setPositiveButton("OK") { _, _ ->      // Directly call OnClickListener
-                        ActivityCompat.requestPermissions(
-                            this@HeartDisplay,
-                            arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
-                            REQUEST_PERMISSION)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            ActivityCompat.requestPermissions(
+                                this@HeartDisplay,
+                                arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
+                                REQUEST_PERMISSION)
+                        }
                     }
                     .setNegativeButton("Cancel") { dialogInterface, _ ->
                         dialogInterface.dismiss()
                     }.create().show()
             } else {
                 // First time checking permission
-                ActivityCompat.requestPermissions(this@HeartDisplay,
-                    arrayOf(Manifest.permission.BLUETOOTH_CONNECT), REQUEST_PERMISSION)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    ActivityCompat.requestPermissions(this@HeartDisplay,
+                        arrayOf(Manifest.permission.BLUETOOTH_CONNECT), REQUEST_PERMISSION)
+                }
             }
         }
         return
     }
+
 
     private fun calculateCal(
         age: Float = 0.0F, weight: Float = 0.0F, gender: String = "Male",
@@ -469,85 +455,6 @@ class HeartDisplay : AppCompatActivity() {
         }
     }
 
-    private fun bpmAverage(): Float {
-        var somme = 0.0F
-        for (item in bpmList) somme += item
-
-        return (somme / bpmList.size)
-    }
-    /*private fun time() {
-
-
-        StartPausebtn!!.setOnClickListener{
-            startStopTimer()}
-        Resetbtn!!.setOnClickListener{
-            resetTimer()
-        }
-
-        serviceIntent = Intent(applicationContext, TimerService::class.java)
-        registerReceiver(updateTime, IntentFilter(TimerService.TIMER_UPDATED))
-
-    }
-    private val updateTime: BroadcastReceiver= object : BroadcastReceiver(){
-        override fun onReceive(context: Context, intent: Intent) {
-           time = intent.getDoubleExtra(TimerService.TIME_EXTRA,0.0)
-           stpwtch.setText(getTimeStringFromDouble(time))
-            Log.d(TAG, getTimeStringFromDouble(time))
-
-
-
-        }
-    }
-
-    private fun getTimeStringFromDouble(time: Double): String{
-
-        val resultInt=time.roundToInt()
-        val hours = resultInt % 86400 / 3600
-        val minutes = resultInt % 86400 % 3600 /60
-        val seconds = resultInt % 86400 % 3600 %60
-        return makeTimeString(hours,minutes,seconds)
-
-    }
-
-    private fun makeTimeString(min: Int, sec: Int, mil: Int): String = String.format("%02d:%02d:%02d", min,sec,mil)
-
-
-
-
-
-
-    private fun resetTimer(){
-        stopTimer()
-        time= 0.0
-        stpwtch.setText(getTimeStringFromDouble(time))
-
-
-    }
-
-    private fun startStopTimer(){
-        if(timerStarted)
-            stopTimer()
-        else
-            startTimer()
-
-    }
-
-    private fun startTimer() {
-        serviceIntent.putExtra(TimerService.TIME_EXTRA,time)
-        startService(serviceIntent)
-        timerStarted = true
-        StartPausebtn.setText("Pause")
-
-    }
-
-    private fun stopTimer() {
-
-        stopService(serviceIntent)
-        timerStarted = false
-        StartPausebtn.setText("Start")
-
-    }*/
-
 
     internal fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         when (requestCode) {
@@ -563,15 +470,14 @@ class HeartDisplay : AppCompatActivity() {
                 } else {
                     // User did not enable Bluetooth or an error occurred
                     Log.d(TAG, "BT not enabled")
-                    if (this@HeartDisplay != null) {
-                        Toast.makeText(this@HeartDisplay, R.string.bt_not_enabled_leaving,
-                            Toast.LENGTH_SHORT).show()
-                        this@HeartDisplay.finish()
-                    }
+                    Toast.makeText(this@HeartDisplay, R.string.bt_not_enabled_leaving,
+                        Toast.LENGTH_SHORT).show()
+                    this@HeartDisplay.finish()
                 }
             }
         }
     }
+
 
     private var requestBluetooth =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -582,32 +488,35 @@ class HeartDisplay : AppCompatActivity() {
             }
         }
 
+
     private val requestMultiplePermissions =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
         { permissions -> permissions.entries.forEach {
                 Log.d(TAG, "${it.key} = ${it.value}")
             }
         }
-    var runnable: Runnable = object : Runnable {
-        override fun run() {
-            MillisecondTime = SystemClock.uptimeMillis() - StartTime
-            UpdateTime = TimeBuff + MillisecondTime
-            Seconds = (UpdateTime / 1000).toInt()
-            Minutes = Seconds / 60
-            Seconds = Seconds % 60
-            MilliSeconds = (UpdateTime % 1000).toInt()
-            if (Minutes>9){
-            timer!!.text = ("" + Minutes + ":"
-                    + String.format("%02d", Seconds) + ":"
-                    + String.format("%02d", (MilliSeconds/10).toLong()))
-            }
-            else if(Minutes<9){
-                timer!!.text = ("0" + Minutes + ":"
-                        + String.format("%02d", Seconds) + ":"
-                        + String.format("%02d", (MilliSeconds/10).toLong()))
 
+
+    private var runnable: Runnable = object : Runnable {
+        override fun run() {
+            millisecondTime = SystemClock.uptimeMillis() - startTime
+            updateTime = timeBuff + millisecondTime
+            seconds = (updateTime / 1000).toInt()
+            minutes = seconds / 60
+            seconds %= 60
+            milliSeconds = (updateTime % 1000).toInt()
+
+            val timeFormat: Int = if (minutes > 9) {
+                R.string.time1
+            } else {
+                R.string.time2
             }
-            handlert!!.postDelayed(this, 0)
+
+            txtTimer.text = getString(timeFormat, minutes.toString(),
+                String.format("%02d", seconds),
+                String.format("%02d", (milliSeconds/10).toLong()))
+
+            timeHandler.postDelayed(this, 0)
         }
     }
 }
