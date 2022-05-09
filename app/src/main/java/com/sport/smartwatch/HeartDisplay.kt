@@ -47,7 +47,7 @@ class HeartDisplay : AppCompatActivity() {
 
     // Calorie Calculation
     private var weight = 0.0F
-    private var age = 0.0F
+    private var age: Int = 0
     private var gender = "Male"
     private var startCalc = false
     private var beginExercise: Long = System.currentTimeMillis()
@@ -92,7 +92,7 @@ class HeartDisplay : AppCompatActivity() {
         val extras = intent.extras
         if (extras != null) {
             weight = extras.getFloat("weight")
-            age = extras.getFloat("age")
+            age = extras.getInt("age")
             gender = extras.getString("gender")!!
         }
 
@@ -186,34 +186,42 @@ class HeartDisplay : AppCompatActivity() {
 
                     Log.d(TAG, "Read: $message")
 
-                    txtBPM.text = message
-                    ////MAX BPM SEGMENT
-                    //////////////////////////////////////////////////////////////////////////////////
-                    //Set MAX BPM
-                    if (age!=null){
-                    var maxBPM=222-age
-                    // If bpm>>max bpm
-                    if(txtBPM.text.toString().toInt()>=maxBPM){
-                        heartImage.setImageResource(R.drawable.blackheart)
-                        txtBPM.setTextColor(Color.RED)
-                        val toast = Toast.makeText(applicationContext,"WARNING :Max BPM Reached,slowing down or stopping the exercice is advised",Toast.LENGTH_SHORT).show() }
-                    //if bpm <<max bpm
-                    else if (txtBPM.text.toString().toInt()<maxBPM){
-                        heartImage.setImageResource(R.drawable.svg_heart)
-                        txtBPM.setTextColor(Color.WHITE)
-                    }}
-                    /////////////////////////////////////////////////////////////////////////////////////
+                    try {
+                        if (message.contains("*")) {
+                            val chartValues = message.split("*")
+                            for (value in chartValues) {
+                                if (value.isNotEmpty() && !value.contains(".", ignoreCase = true)) {
+                                    Log.d(TAG, "Handling '*' Values")
+                                }
+                            }
+                        } else if (message.contains("#")){
+                            val txtBPM: TextView = this@HeartDisplay.findViewById(R.id.txtBPM)
+                            val bpm = message.split("#")[1]
 
-                    if (firstBPM == false) {
-                        beginExercice = System.currentTimeMillis()
-                        firstBPM = true
+                            // Set BPM TextView content
+                            txtBPM.text = bpm
+
+                            // Check Max BPM
+                            val maxBPM: Int = 222-age
+                            val currentBPM = bpm.toFloat().roundToInt()
+
+                            checkMaxBPM(currentBPM, maxBPM)
+
+                            // Calculate Calories
+                            if (startCalc) {
+                                if (btnTimer.text == "Pause") {
+                                    val currentTime = System.currentTimeMillis()
+                                    val duration: Long = currentTime - beginExercise
+                                    val floatBPM = bpm.toFloat()
+
+                                    val calories = calculateCal(age, weight, gender, floatBPM, duration)
+                                    txtCalories.text = getString(R.string.calories_burned, calories)
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "handleMessage: Stopped", e)
                     }
-                    val currentTime = System.currentTimeMillis()
-                    val duration: Long = currentTime - beginExercice
-                    val bpm = message.toFloat()
-
-                    val calories = calculateCal(age, weight, gender, bpm, duration)
-                    txtCalories.text = "Calories Burned: $calories"
                 }
                 MESSAGE_DEVICE_NAME -> {
                     // save the connected device's name
@@ -438,7 +446,7 @@ class HeartDisplay : AppCompatActivity() {
 
 
     private fun calculateCal(
-        age: Float = 0.0F, weight: Float = 0.0F, gender: String = "Male",
+        age: Int = 0, weight: Float = 0.0F, gender: String = "Male",
         bpm: Float = 0.0F, duration: Long): Float {
         return when (gender) {
             "Female" -> {
@@ -517,6 +525,22 @@ class HeartDisplay : AppCompatActivity() {
                 String.format("%02d", (milliSeconds/10).toLong()))
 
             timeHandler.postDelayed(this, 0)
+        }
+    }
+
+
+    fun checkMaxBPM(current: Int, max: Int) {
+        if(current >= max) {
+            heartImage.setImageResource(R.drawable.blackheart)
+            txtBPM.setTextColor(Color.RED)
+
+            // Warn the user
+            Toast.makeText(applicationContext,"WARNING: Max BPM Reached, " +
+                    "slowing down or stopping the exercise is advised."
+                , Toast.LENGTH_LONG).show()
+        } else {
+            heartImage.setImageResource(R.drawable.svg_heart)
+            txtBPM.setTextColor(Color.WHITE)
         }
     }
 }
