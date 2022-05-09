@@ -278,6 +278,7 @@ class HeartDisplay : AppCompatActivity() {
             milliSeconds = 0
             txtTimer.text = getString(R.string.zero_timer)
             startCalc = false
+            txtCalories.text = ""
         }
 
         // Bluetooth
