@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         listview = findViewById(R.id.lstPerson)
         listview.adapter = ProfileAdapter(this@MainActivity, profileList)
 
-        listview.setOnItemClickListener { adapterView, view, i, l ->
+        listview.setOnItemClickListener { _, _, i, _ ->
             val intentHeart = Intent(this@MainActivity, HeartDisplay::class.java)
             intentHeart.putExtra("name", profileList[i].name)
             intentHeart.putExtra("weight", profileList[i].weight)
@@ -68,13 +68,6 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(TAG, "loadData: failed", e)
             }
-        }
-
-        // checking below if the array list is empty or not
-        if (profileList == null) {
-            // if the array list is empty
-            // creating a new array list.
-            profileList = ArrayList<Profile>()
         }
     }
 

@@ -7,7 +7,7 @@ import java.util.*
 
 class TimerService:Service (){
     override fun onBind(p0:Intent?): IBinder?=null
-    private val timer= Timer()
+    private val timer = Timer()
 
     override fun onStartCommand(intent:Intent?,flags:Int,startId:Int):Int{
         val time = intent?.getDoubleExtra(TIME_EXTRA,0.0)
@@ -29,7 +29,7 @@ class TimerService:Service (){
     }
     companion object
     {
-        const val TIMER_UPDATED="timerUpdated"
-        const val TIME_EXTRA="timeExtra"
+        const val TIMER_UPDATED = "timerUpdated"
+        const val TIME_EXTRA = "timeExtra"
     }
 }

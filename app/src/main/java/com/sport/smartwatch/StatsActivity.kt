@@ -1,16 +1,14 @@
 package com.sport.smartwatch
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -79,13 +77,6 @@ class StatsActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(TAG, "loadData: failed", e)
             }
-        }
-
-        // checking below if the array list is empty or not
-        if (profileList == null) {
-            // if the array list is empty
-            // creating a new array list.
-            profileList = ArrayList<Profile>()
         }
     }
 

@@ -47,15 +47,13 @@ const val TOAST = ""
 @RequiresApi(Build.VERSION_CODES.O)
 class BluetoothUtils(private val context: Context, private val handler: Handler) {
     var adapter: BluetoothAdapter? = null
-
     var manager: CompanionDeviceManager
-    val messages: ArrayList<String> = ArrayList()
 
     var connectThread : ConnectThread? = null
-    var connectedThread : ConnectedThread? = null
+    private var connectedThread : ConnectedThread? = null
 
     var mState: Int = 0
-    var newState: Int = 0
+    private var newState: Int = 0
 
     init {
         // Define and Initialize the bluetooth adapter
@@ -100,7 +98,7 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
      * Initial connection state, start
      */
     @Synchronized
-    open fun start() {
+    fun start() {
         Log.d(TAG, "start")
 
         // Cancel any thread attempting to make a connection
@@ -123,7 +121,7 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
      * Final connection state, stop
      */
     @Synchronized
-    open fun stop() {
+    fun stop() {
         Log.d(TAG, "stop")
 
         if (connectedThread != null) {
@@ -147,7 +145,7 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
      * TODO
      */
     @Synchronized
-    open fun connect(device: BluetoothDevice) {
+    fun connect(device: BluetoothDevice) {
         Log.d(TAG, "connect to: $device")
 
         // Cancel any thread attempting to make a connection
@@ -176,7 +174,7 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
      * TODO
      */
     @Synchronized
-    open fun connected(socket: BluetoothSocket?, device: BluetoothDevice) {
+    fun connected(socket: BluetoothSocket?, device: BluetoothDevice) {
         Log.d(TAG, "connected")
 
         // Cancel the thread that completed the connection
@@ -211,7 +209,7 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
     /**
      * TODO
      */
-    open fun write(out: ByteArray?) {
+    fun write(out: ByteArray?) {
         // Create temporary object
         var r: ConnectedThread
 
@@ -221,7 +219,7 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
             r = connectedThread!!
         }
 
-        // Perform the write unsynchronized
+        // Perform the write ( not synchronized )
         r.write(out!!)
     }
 
@@ -346,8 +344,8 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
 
             // Get the BluetoothSocket input and output streams
             try {
-                tmpIn = mmSocket!!.inputStream
-                tmpOut = mmSocket!!.outputStream
+                tmpIn = mmSocket.inputStream
+                tmpOut = mmSocket.outputStream
             } catch (e: IOException) {
                 Log.e(TAG, "temp sockets not created", e)
             }
@@ -432,8 +430,10 @@ class BluetoothUtils(private val context: Context, private val handler: Handler)
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(context as Activity,
-                arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                ActivityCompat.requestPermissions(context as Activity,
+                    arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
+            }
             return
         }
     }
