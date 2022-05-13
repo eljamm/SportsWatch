@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.*
 import android.util.Log
 import android.widget.Button
@@ -54,14 +55,15 @@ class HeartDisplay : AppCompatActivity() {
     private var beginExercise: Long = System.currentTimeMillis()
 
     // Timer
-    var timeHandler = Handler(Looper.myLooper()!!)
-    var millisecondTime: Long = 0
-    var startTime: Long = 0
-    var timeBuff: Long = 0
-    var updateTime = 0L
-    var seconds = 0
-    var minutes = 0
-    var milliSeconds = 0
+    private var timeHandler = Handler(Looper.myLooper()!!)
+    private var millisecondTime: Long = 0
+    private var startTime: Long = 0
+    private var timeBuff: Long = 0
+    private var updateTime = 0L
+    private var seconds = 0
+    private var minutes = 0
+    private var milliSeconds = 0
+    private var timerLimit = true
 
     // Views
     private lateinit var txtCalories: TextView
@@ -535,6 +537,40 @@ class HeartDisplay : AppCompatActivity() {
                 String.format("%02d", (milliSeconds/10).toLong()))
 
             timeHandler.postDelayed(this, 0)
+
+            if (minutes == 45 && timerLimit) {
+                // Play a notification sound
+                MediaPlayer.create(this@HeartDisplay, R.raw.notification).start()
+
+                // Display warning message
+                Toast.makeText(this@HeartDisplay,
+                    "WARNING: You have been running for a long time, you should take a break.",
+                    Toast.LENGTH_SHORT).show()
+
+                timerLimit = false
+            }
+
+            //timerLimit = false // (remove comment for testing)
+            if (minutes == 60 && !timerLimit) {
+                // Play a notification sound
+                MediaPlayer.create(this@HeartDisplay, R.raw.notification).start()
+
+                // Reset Timer
+                btnTimer.performClick()
+                btnReset.performClick()
+
+                // Alert the user of the action
+                AlertDialog.Builder(this@HeartDisplay)
+                    .setTitle("Break Time")
+                    .setMessage(
+                        "You have been running for a long time, the activity will therefore reset."
+                                + "\n\nIt is highly advised that you take a break.")
+                    .setNeutralButton("OK") { dialogInterface, _ ->
+                        dialogInterface.dismiss()
+                    }.show()
+
+                timerLimit = true
+            }
         }
     }
 
