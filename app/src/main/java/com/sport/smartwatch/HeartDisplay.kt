@@ -359,7 +359,6 @@ class HeartDisplay : AppCompatActivity() {
                 btUtils.manager.associate(pairingRequest,
                     object : CompanionDeviceManager.Callback() {
                         override fun onDeviceFound(chooserLauncher: IntentSender) {
-                            // TODO
                             startIntentSenderForResult(chooserLauncher,
                                 SELECT_DEVICE_REQUEST_CODE, null, 0, 0, 0)
                         }
@@ -500,6 +499,20 @@ class HeartDisplay : AppCompatActivity() {
                     this@HeartDisplay.finish()
                 }
             }
+            SELECT_DEVICE_REQUEST_CODE -> when(resultCode) {
+                Activity.RESULT_OK -> {
+                    // The user chose to pair the app with a Bluetooth device.
+                    val deviceToPair: BluetoothDevice? =
+                        data.getParcelableExtra(CompanionDeviceManager.EXTRA_DEVICE)
+                    deviceToPair?.let { device ->
+                        checkPermission()
+                        device.createBond()
+                        Log.d(TAG, "onActivityResult: Bound with ${device.name}")
+                        // Maintain continuous interaction with a paired device.
+                    }
+                }
+            }
+            else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
