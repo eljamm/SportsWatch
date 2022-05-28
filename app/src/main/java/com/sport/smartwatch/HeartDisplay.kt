@@ -66,6 +66,7 @@ class HeartDisplay : AppCompatActivity() {
     private var timerLimit = true
 
     // Views
+    private lateinit var txtTargetBPM: TextView
     private lateinit var txtCalories: TextView
     private lateinit var txtBPM: TextView
     private lateinit var btnBlue: Button
@@ -205,10 +206,13 @@ class HeartDisplay : AppCompatActivity() {
                             txtBPM.text = bpm
 
                             // Check Max BPM
-                            val maxBPM: Int = (222-age) * 65 / 100
+                            val maxBPM: Int = (222-age)
+                            val targetBPM: Int = maxBPM * 65 / 100
                             val currentBPM = bpm.toFloat().roundToInt()
 
-                            checkMaxBPM(currentBPM, maxBPM)
+                            checkMaxBPM(currentBPM, targetBPM)
+
+                            txtTargetBPM.text = "Target BPM: $targetBPM"
 
                             // Calculate Calories
                             if (startCalc) {
@@ -298,6 +302,7 @@ class HeartDisplay : AppCompatActivity() {
 
         // Views
         txtBPM = findViewById(R.id.txtBPM)
+        txtTargetBPM = findViewById(R.id.txtTargetHR)
         txtCalories = findViewById(R.id.txtCalories)
         btnBlue = findViewById(R.id.btnBlue)
     }
