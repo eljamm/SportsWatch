@@ -582,7 +582,7 @@ class HeartDisplay : AppCompatActivity() {
 
     fun checkMaxBPM(current: Int, max: Int) {
         if(current >= max) {
-            heartImage.setImageResource(R.drawable.blackheart)
+            heartImage.setImageResource(R.drawable.svg_heart_black)
             txtBPM.setTextColor(Color.RED)
 
             // Warn the user
