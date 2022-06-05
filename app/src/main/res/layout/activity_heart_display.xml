@@ -10,23 +10,21 @@
         android:id="@+id/StopWatch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
+        android:layout_marginTop="16dp"
         android:text="00:00:00"
         android:textSize="34sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtCalories" />
+        app:layout_constraintTop_toBottomOf="@+id/btnStart" />
 
     <Button
         android:id="@+id/btnReset"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:text="Reset"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnStart"
-        app:layout_constraintTop_toBottomOf="@+id/StopWatch" />
+        app:layout_constraintTop_toTopOf="@+id/btnStart" />
 
     <Button
         android:id="@+id/btnBlue"
@@ -50,33 +48,37 @@
         android:id="@+id/txtTargetHR"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:text="Target BPM :"
         android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayout2"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/btnStart"
+        app:layout_constraintTop_toBottomOf="@+id/StopWatch"
         tools:text="Target BPM :" />
 
     <TextView
         android:id="@+id/txtCalories"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:text="Burned :"
         android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/txtTargetHR"
         app:layout_constraintTop_toBottomOf="@+id/txtTargetHR"
-        tools:text="Calories :" />
+        tools:text="Burned :" />
 
     <Button
         android:id="@+id/btnStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="16dp"
         android:text="Start"
         app:layout_constraintEnd_toStartOf="@+id/btnReset"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/StopWatch" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout2" />
 
     <FrameLayout
         android:id="@+id/frameLayout2"
@@ -113,14 +115,36 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="25dp"
             android:layout_marginBottom="20dp"
             android:fontFamily="sans-serif-light"
             android:textColor="@color/cardview_light_background"
-            android:textSize="25sp"
+            android:textSize="34sp"
             android:textStyle="bold"
             tools:text="BPM" />
 
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/txtTargetHR2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@+id/txtTargetHR"
+        app:layout_constraintStart_toEndOf="@+id/txtTargetHR"
+        app:layout_constraintTop_toTopOf="@+id/txtTargetHR"
+        tools:text="60" />
+
+    <TextView
+        android:id="@+id/txtCalories2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@+id/txtCalories"
+        app:layout_constraintStart_toEndOf="@+id/txtCalories"
+        app:layout_constraintTop_toTopOf="@+id/txtCalories"
+        tools:text="0 cal" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

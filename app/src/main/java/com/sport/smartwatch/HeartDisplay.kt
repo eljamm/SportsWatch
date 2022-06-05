@@ -97,9 +97,6 @@ class HeartDisplay : AppCompatActivity() {
         // Check bluetooth permission
         checkPermission()
 
-        //call time function for stopwatch
-        //time()
-
         btnBlue.setOnClickListener {
             // Enable bluetooth if it's disabled
             enableBluetooth()
@@ -110,8 +107,6 @@ class HeartDisplay : AppCompatActivity() {
             // Connect to paired devices
             connectDevice()
         }
-
-        //serviceIntent = Intent(applicationContext,TimerService::class.java)
     }
 
 
@@ -212,7 +207,7 @@ class HeartDisplay : AppCompatActivity() {
 
                             checkMaxBPM(currentBPM, targetBPM)
 
-                            txtTargetBPM.text = "Target BPM: $targetBPM"
+                            txtTargetBPM.text = "$targetBPM"
 
                             // Calculate Calories
                             if (startCalc) {
@@ -226,7 +221,7 @@ class HeartDisplay : AppCompatActivity() {
                                     val floatBPM = calculateAverage(bpm.toFloat())
 
                                     val calories = calculateCal(age, weight, gender, floatBPM, duration)
-                                    txtCalories.text = getString(R.string.calories_burned, calories)
+                                    txtCalories.text = "$calories"
                                     Log.d(TAG, "duration: $duration | floatBPM: $floatBPM" +
                                             " | calories: $calories")
                                 }
@@ -302,8 +297,8 @@ class HeartDisplay : AppCompatActivity() {
 
         // Views
         txtBPM = findViewById(R.id.txtBPM)
-        txtTargetBPM = findViewById(R.id.txtTargetHR)
-        txtCalories = findViewById(R.id.txtCalories)
+        txtTargetBPM = findViewById(R.id.txtTargetHR2)
+        txtCalories = findViewById(R.id.txtCalories2)
         btnBlue = findViewById(R.id.btnBlue)
     }
 
